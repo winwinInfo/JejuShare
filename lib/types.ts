@@ -1,3 +1,7 @@
+/*
+  Supabase 테이블 타입
+*/
+
 export type Owner = {
   id: number
   created_at: string
