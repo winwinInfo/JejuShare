@@ -1,26 +1,108 @@
 @import "tailwindcss";
 
+/* Pretendard (dynamic subset) — 본문 폰트 */
+@font-face {
+  font-family: "Pretendard";
+  font-weight: 45 920;
+  font-style: normal;
+  font-display: swap;
+  src: url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/woff2/PretendardVariable.woff2")
+    format("woff2-variations");
+}
+
+/*
+  제주 새활용 도감 — 박물관 카탈로그 / 필드노트 톤
+  베이지·아이보리 단일 톤 (다크모드 없음)
+*/
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --radius: 0.5rem;
+
+  --background: #fbf9f4; /* 아이보리 */
+  --foreground: #1c1a17; /* 따뜻한 먹색 */
+
+  --card: #fffefb;
+  --card-foreground: #1c1a17;
+
+  --popover: #fffefb;
+  --popover-foreground: #1c1a17;
+
+  --primary: #2b2823; /* 거의 검정 — 박물관 톤 */
+  --primary-foreground: #fbf9f4;
+
+  --secondary: #f0ebe0; /* 모래빛 */
+  --secondary-foreground: #2b2823;
+
+  --muted: #f0ebe0;
+  --muted-foreground: #6b6557; /* 따뜻한 회색 */
+
+  --accent: #eae3d6;
+  --accent-foreground: #2b2823;
+
+  --destructive: #9a3412; /* 벽돌색(차분) */
+  --destructive-foreground: #fbf9f4;
+
+  --border: #e5dfd2;
+  --input: #e5dfd2;
+  --ring: #b8a98c;
+
+  /* 카테고리 컬러 (채도 낮게) */
+  --cat-agr: #44603c; /* 농업 — 녹 */
+  --cat-agr-bg: #e7ede3;
+  --cat-mar: #3a4f5c; /* 수산 — 청 */
+  --cat-mar-bg: #e2e9ee;
+  --cat-pro: #6b5526; /* 가공 — 앰버 */
+  --cat-pro-bg: #f1e9da;
+  --cat-lif: #55514a; /* 생활/기타 — 중성 */
+  --cat-lif-bg: #eae7e1;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-cat-agr: var(--cat-agr);
+  --color-cat-agr-bg: var(--cat-agr-bg);
+  --color-cat-mar: var(--cat-mar);
+  --color-cat-mar-bg: var(--cat-mar-bg);
+  --color-cat-pro: var(--cat-pro);
+  --color-cat-pro-bg: var(--cat-pro-bg);
+  --color-cat-lif: var(--cat-lif);
+  --color-cat-lif-bg: var(--cat-lif-bg);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --font-sans: "Pretendard", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  * {
+    border-color: var(--border);
   }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
 }

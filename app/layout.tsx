@@ -1,20 +1,12 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import "@/frontend/styles/globals.css";
+import { SiteHeader } from "@/frontend/components/SiteHeader";
+import { SiteFooter } from "@/frontend/components/SiteFooter";
 
 export const metadata: Metadata = {
-  title: "제주 농업부산물 나눔",
-  description: "제주시 농업 부산물 공유 플랫폼",
+  title: "제주 새활용 도감",
+  description:
+    "제주의 버려지는 자원을 함께 발견하고, 기록하고, 다시 쓰는 사람들. 제주 미활용 농수산 부산물 정보 도감.",
 };
 
 export default function RootLayout({
@@ -23,11 +15,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="ko" className="h-full">
+      <body className="flex min-h-full flex-col">
+        <SiteHeader />
+        <div className="flex-1">{children}</div>
+        <SiteFooter />
+      </body>
     </html>
   );
 }
