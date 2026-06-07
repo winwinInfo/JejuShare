@@ -36,7 +36,7 @@ export default async function SpeciesDetailPage({
         href="/"
         className="font-mono text-xs text-muted-foreground hover:text-foreground"
       >
-        ← 도감으로
+        도감으로
       </Link>
 
       <div className="mt-6 space-y-12">

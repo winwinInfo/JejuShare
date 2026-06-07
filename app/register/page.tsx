@@ -1,21 +1,30 @@
-import Link from 'next/link'
-import { RegisterForm } from '@/frontend/components/RegisterForm'
+import { createSupabaseServer } from '@/backend/supabase'
+import { redirect } from 'next/navigation'
+import { ProfileForm } from '@/frontend/components/ProfileForm'
 
-export default function RegisterPage() {
+export default async function RegisterPage() {
+  const supabase = await createSupabaseServer()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) redirect('/login')
+
+  const { data: profile } = await supabase
+    .from('user')
+    .select('nickname')
+    .eq('id', user.id)
+    .single()
+
+  if (profile?.nickname) redirect('/')
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b border-gray-200">
-        <div className="max-w-2xl mx-auto px-4 py-4 flex items-center gap-3">
-          <Link href="/" className="text-gray-400 hover:text-gray-600 text-sm">
-            ← 목록으로
-          </Link>
-          <h1 className="text-lg font-bold text-green-700">부산물 등록</h1>
-        </div>
-      </header>
-
-      <main className="max-w-2xl mx-auto px-4 py-6">
-        <RegisterForm />
-      </main>
-    </div>
+    <main className="min-h-[60vh] flex items-center justify-center px-5">
+      <div className="w-full max-w-sm">
+        <h1 className="text-2xl font-semibold tracking-tight mb-2">프로필 설정</h1>
+        <p className="text-sm text-muted-foreground mb-8">
+          처음 오셨군요. 기본 정보를 입력해주세요.
+        </p>
+        <ProfileForm email={user.email!} />
+      </div>
+    </main>
   )
 }
