@@ -19,7 +19,10 @@ export async function SiteHeader() {
     <header className="border-b border-border bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-20">
       <div className="mx-auto flex max-w-6xl items-end justify-between gap-4 px-5 py-5">
         <Link href="/" className="group">
-          <h1 className="text-xl font-semibold tracking-tight">
+          <h1
+            className="text-xl font-semibold tracking-tight"
+            style={{ fontFamily: '"EutmanGungseo", serif' }}
+          >
             제주 새활용 도감
           </h1>
           <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
