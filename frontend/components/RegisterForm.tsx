@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createListing } from '@/backend/actions/items'
 
 export function RegisterForm() {
   const router = useRouter()
@@ -22,30 +21,13 @@ export function RegisterForm() {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }))
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError(null)
-
-    const result = await createListing(form)
-
-    if (!result.ok) {
-      setError(result.error)
-      setLoading(false)
-      return
-    }
-
-    router.push('/')
-    router.refresh()
-  }
-
   const byproductTypes = [
     '감귤 껍질', '감귤 부산물', '당근 잎/줄기', '브로콜리 잎', '양배추 외엽',
     '무 잎/줄기', '콩깍지', '볏짚', '기타',
   ]
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm space-y-5">
+    <form onSubmit={(e) => e.preventDefault()} className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm space-y-5">
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
