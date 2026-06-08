@@ -8,6 +8,11 @@ export function SiteFooter() {
           제주특별자치도 소통협력센터에 귀속되어 공공누리 제2유형으로
           공개됩니다.
         </p>
+        <div className="mt-6 space-y-0.5 text-xs leading-relaxed text-muted-foreground">
+          <p>주식회사 제주시트러스랩스 · 대표이사 이창현</p>
+          <p>제주특별자치도 서귀포시 중정로 86 서귀포스타트업베이 3층 302-1호</p>
+          <p>사업자등록번호 690-81-03449</p>
+        </div>
       </div>
     </footer>
   )
