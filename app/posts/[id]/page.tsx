@@ -1,7 +1,11 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
+import { createSupabaseServer } from '@/backend/supabase'
 import { getPostById } from '@/backend/queries/posts'
+import { getLikeStatus, getLikeCount } from '@/backend/queries/likes'
+import { getEmailSentStatus } from '@/backend/queries/email'
+import { PostActions } from '@/frontend/components/PostActions'
 
 const TYPE_LABEL = { offer: '있어요', request: '구해요' }
 const TYPE_STYLE = {
@@ -16,8 +20,21 @@ export default async function PostDetailPage({
 }) {
   const { id } = await params
   const post = await getPostById(Number(id))
-
   if (!post) notFound()
+
+  const supabase = await createSupabaseServer()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  const isOwner = user?.id === post.author.id
+
+  const [liked, likeCount, emailSent, postRow] = await Promise.all([
+    getLikeStatus(post.id),
+    getLikeCount(post.id),
+    getEmailSentStatus(post.id),
+    supabase.from('posts').select('contact_email').eq('id', post.id).single(),
+  ])
+
+  const hasContactEmail = !!postRow.data?.contact_email
 
   const dateLabel = new Date(post.createdAt).toLocaleDateString('ko-KR', {
     year: 'numeric', month: 'long', day: 'numeric',
@@ -65,13 +82,15 @@ export default async function PostDetailPage({
 
         <p className="text-sm leading-relaxed whitespace-pre-wrap">{post.body}</p>
 
-        <div className="pt-4">
-          <button
-            className="w-full bg-foreground text-background py-3 rounded-xl text-sm font-medium hover:opacity-90 transition-opacity"
-          >
-            관심 있어요
-          </button>
-        </div>
+        <PostActions
+          postId={post.id}
+          initialLiked={liked}
+          initialLikeCount={likeCount}
+          emailSent={emailSent}
+          hasContactEmail={hasContactEmail}
+          isOwner={isOwner}
+          isLoggedIn={!!user}
+        />
       </article>
     </main>
   )

@@ -8,6 +8,14 @@ export default async function PostNewPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
+  const { data: profile } = await supabase
+    .from('user')
+    .select('email')
+    .eq('id', user.id)
+    .single()
+
+  const defaultEmail = profile?.email ?? user.email ?? ''
+
   return (
     <main className="mx-auto max-w-lg px-5 py-8">
       <Link
@@ -22,7 +30,7 @@ export default async function PostNewPage() {
         제주의 미활용 자원을 기록해주세요.
       </p>
 
-      <PostNewForm userId={user.id} />
+      <PostNewForm userId={user.id} defaultEmail={defaultEmail} />
     </main>
   )
 }

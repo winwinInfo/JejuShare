@@ -56,11 +56,12 @@ async function compressImage(file: File): Promise<Blob> {
   })
 }
 
-export function PostNewForm({ userId }: { userId: string }) {
+export function PostNewForm({ userId, defaultEmail }: { userId: string; defaultEmail: string }) {
   const [postType, setPostType] = useState<PostType>('offer')
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
   const [region, setRegion] = useState('')
+  const [contactEmail, setContactEmail] = useState(defaultEmail)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
@@ -124,6 +125,7 @@ export function PostNewForm({ userId }: { userId: string }) {
       body,
       region,
       imageUrl: uploadedImageUrl,
+      contactEmail: contactEmail.trim() || null,
     })
 
     if (!result.ok) {
@@ -226,6 +228,22 @@ export function PostNewForm({ userId }: { userId: string }) {
           placeholder="자원의 종류, 상태, 수량, 보관 방법 등 상세히 적어주세요."
           className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-foreground/20 resize-none"
         />
+      </div>
+
+      {/* 연락 이메일 */}
+      <div>
+        <label className="block text-xs font-medium text-muted-foreground mb-1.5">
+          연락받을 이메일 <span className="text-destructive">*</span>
+        </label>
+        <input
+          type="email"
+          value={contactEmail}
+          onChange={(e) => setContactEmail(e.target.value)}
+          required
+          placeholder="답장받을 이메일 주소"
+          className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-foreground/20"
+        />
+        <p className="mt-1 text-xs text-muted-foreground">카카오 계정 이메일이 기본으로 입력됩니다. 다른 주소로 변경할 수 있어요.</p>
       </div>
 
       {/* 이미지 */}

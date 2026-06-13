@@ -12,6 +12,7 @@ export type PostForm = {
   body: string
   region: string
   imageUrl: string | null
+  contactEmail: string | null
 }
 
 export async function createPost(form: PostForm): Promise<ActionResult> {
@@ -30,6 +31,7 @@ export async function createPost(form: PostForm): Promise<ActionResult> {
     body: form.body.trim(),
     region: form.region,
     image_url: form.imageUrl,
+    contact_email: form.contactEmail,
     status: 'active',
   })
 

@@ -2,6 +2,9 @@ import { redirect } from 'next/navigation'
 import { createSupabaseServer } from '@/backend/supabase'
 import { LogoutButton } from '@/frontend/components/LogoutButton'
 import { ProfileEditForm } from '@/frontend/components/ProfileEditForm'
+import { PostCard } from '@/frontend/components/PostCard'
+import { getLikedPosts } from '@/backend/queries/likes'
+import { getEmailedPosts } from '@/backend/queries/email'
 
 export default async function MyPage() {
   const supabase = await createSupabaseServer()
@@ -9,11 +12,11 @@ export default async function MyPage() {
 
   if (!user) redirect('/login')
 
-  const { data: profile } = await supabase
-    .from('user')
-    .select('nickname, phone, bio, created_at')
-    .eq('id', user.id)
-    .single()
+  const [profile, likedPosts, emailedPosts] = await Promise.all([
+    supabase.from('user').select('nickname, phone, bio, created_at').eq('id', user.id).single().then(r => r.data),
+    getLikedPosts(),
+    getEmailedPosts(),
+  ])
 
   return (
     <main className="mx-auto max-w-2xl px-5 py-12">
@@ -23,6 +26,7 @@ export default async function MyPage() {
       </div>
 
       <div className="space-y-4">
+        {/* 계정 정보 */}
         <div className="border border-border rounded-xl p-6 space-y-3">
           <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-widest">계정</h2>
           <div className="flex gap-4">
@@ -46,6 +50,38 @@ export default async function MyPage() {
             bio: profile?.bio ?? null,
           }}
         />
+
+        {/* 좋아요한 글 */}
+        <div className="border border-border rounded-xl p-6">
+          <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-widest mb-4">
+            좋아요한 글 <span className="text-foreground normal-case">({likedPosts.length})</span>
+          </h2>
+          {likedPosts.length === 0 ? (
+            <p className="text-sm text-muted-foreground">아직 좋아요한 게시글이 없습니다.</p>
+          ) : (
+            <div className="grid gap-3 sm:grid-cols-2">
+              {likedPosts.map((post) => (
+                <PostCard key={post.id} post={post} />
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* 이메일 보낸 글 */}
+        <div className="border border-border rounded-xl p-6">
+          <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-widest mb-4">
+            이메일 보낸 글 <span className="text-foreground normal-case">({emailedPosts.length})</span>
+          </h2>
+          {emailedPosts.length === 0 ? (
+            <p className="text-sm text-muted-foreground">아직 이메일을 보낸 게시글이 없습니다.</p>
+          ) : (
+            <div className="grid gap-3 sm:grid-cols-2">
+              {emailedPosts.map((post) => (
+                <PostCard key={post.id} post={post} />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </main>
   )

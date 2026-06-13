@@ -7,6 +7,8 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
@@ -42,6 +44,78 @@ export type Database = {
           {
             foreignKeyName: "blocks_blocker_id_fkey"
             columns: ["blocker_id"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_contacts: {
+        Row: {
+          id: number
+          post_id: number
+          sender_id: string
+          sent_at: string
+        }
+        Insert: {
+          id?: never
+          post_id: number
+          sender_id: string
+          sent_at?: string
+        }
+        Update: {
+          id?: never
+          post_id?: number
+          sender_id?: string
+          sent_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_contacts_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_contacts_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      likes: {
+        Row: {
+          created_at: string
+          id: number
+          post_id: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: never
+          post_id: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: never
+          post_id?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "likes_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "likes_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "user"
             referencedColumns: ["id"]
@@ -113,6 +187,7 @@ export type Database = {
         Row: {
           author_id: string
           body: string
+          contact_email: string | null
           created_at: string
           id: number
           image_url: string | null
@@ -125,6 +200,7 @@ export type Database = {
         Insert: {
           author_id: string
           body: string
+          contact_email?: string | null
           created_at?: string
           id?: number
           image_url?: string | null
@@ -137,6 +213,7 @@ export type Database = {
         Update: {
           author_id?: string
           body?: string
+          contact_email?: string | null
           created_at?: string
           id?: number
           image_url?: string | null
@@ -246,7 +323,12 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      match_status: "interested" | "accepted" | "declined" | "completed" | "failed"
+      match_status:
+        | "interested"
+        | "accepted"
+        | "declined"
+        | "completed"
+        | "failed"
       post_status: "active" | "closed"
       post_type: "offer" | "request"
     }
@@ -257,6 +339,7 @@ export type Database = {
 }
 
 type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
 type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
 
 export type Tables<
@@ -355,10 +438,33 @@ export type Enums<
     ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
     : never
 
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never
+
 export const Constants = {
   public: {
     Enums: {
-      match_status: ["interested", "accepted", "declined", "completed", "failed"],
+      match_status: [
+        "interested",
+        "accepted",
+        "declined",
+        "completed",
+        "failed",
+      ],
       post_status: ["active", "closed"],
       post_type: ["offer", "request"],
     },
