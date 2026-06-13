@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
+import type { Database } from '@/backend/database.types'
 
 // Config
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
@@ -9,7 +10,7 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
 // 공개 데이터 조회용 (로그인 안해도 주는 정보들은 이걸 사용)
 // flowType: 'pkce' — 매직링크를 ?code= 방식으로 받기 위해 필요
-export const supabasePublic = createClient(supabaseUrl, supabaseAnonKey, {
+export const supabasePublic = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   auth: {
     flowType: 'pkce',
   },
@@ -27,7 +28,7 @@ export async function createSupabaseServer() {
         따라서 요청 받은 후에만 호출할 것.
     */
     const cookieStore = await cookies()
-    return createServerClient(supabaseUrl, supabaseAnonKey, {
+    return createServerClient<Database>(supabaseUrl, supabaseAnonKey, {
         cookies: {
         getAll: () => cookieStore.getAll(),
         setAll: (toSet) =>
