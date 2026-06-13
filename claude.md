@@ -6,124 +6,82 @@
 
 운영 주체: **주식회사 제주시트러스랩스** (감귤박 업사이클링 R&D 기업).
 
-현재 레포(winwinInfo/JejuShare)는 5월 31일 만든 첫 프로토타입이며, 전면 재설계 작업을 요청합니다.
-
 ## 정체성
 
 - **서비스명:** 제주 새활용 도감 (Jeju Upcycle Dogam)
 - **부제:** "제주의 버려지는 자원을 함께 발견하고, 기록하고, 다시 쓰는 사람들."
-- **톤:** 박물관 카탈로그·필드 노트·도감 톤. "나눔/공유 플랫폼" 같은 행정 톤 금지.
+- **톤:** 필드 노트·도감 톤. "나눔/공유 플랫폼" 같은 행정 톤 금지.
 - **목표 도메인:** jejudogam.kr
 
 ## 벤치마킹 레퍼런스
 
-1. **Materiom (materiom.org)** — 데이터 모델·카드 그리드 UI 직계 모델
+1. **당근마켓** — 유저 게시글 피드 구조
 2. **iNaturalist (inaturalist.org)** — 기여자 프로필, 발견 단위 카드
 3. **Cooper Hewitt Collection** — 차분한 카탈로그 톤
 
 ## 인증 시스템
 
-- **방식:** 이메일 매직링크 (비밀번호 없음). **Supabase Auth 사용.**
-- 카카오 소셜 로그인은 추후 추가 — 확장 가능한 구조로만 설계 (이번 범위 밖)
-- 가입 시 입력: 이메일, 표시 이름(닉네임), **연락처(전화), 이용 약관 동의**
+- **방식:** 카카오 소셜 로그인. **Supabase Auth 사용.**
+- 비밀번호 로그인 금지. 매직링크는 백엔드에 유지하되 UI 미노출.
+- 가입 시 입력: 닉네임, **연락처(전화), 이용 약관 동의** (카카오에서 이메일 자동 수집)
 
 ## 사용자 모델
 
-역할 구분 없음. **모든 사용자는 보유자·수요자·기여자가 동시에 될 수 있음.** 한 행동도 안 한 사람은 단순 가입자.
+역할 구분 없음. **모든 사용자는 보유자·수요자가 동시에 될 수 있음.**
 
 권한 구분: 일반 사용자 vs admin (1명).
 
-## 데이터 모델 (8개 테이블)
+## 데이터 모델 (5개 테이블)
 
-### 1. users
+### 1. user
 - id (PK, Supabase auth.users 연동)
 - email (unique, **비공개** — 본인과 admin만)
-- display_name (닉네임, 공개)
+- nickname (닉네임, 공개)
 - phone (**기본 비공개**, 매칭 수락 시 상대에게만 공개)
 - bio (한 줄 소개, optional)
-- is_admin (default false)
 - terms_agreed_at (약관 동의 시각)
-- created_at, last_login_at
-
-### 2. species (부산물 종류)
-- id (PK)
-- code (자동 생성: JJU-AGR-001)
-- name
-- category (enum: AGR/MAR/PRO/LIF)
-- description
-- cover_image_url
-- season
-- proposed_by (users FK, nullable)
-- approved (boolean, default false — admin 승인 후 공개)
 - created_at
 
-### 3. sources (발생처)
+### 2. posts (게시글) — 핵심
 - id (PK)
-- species_id (FK)
-- owner_id (users FK)
-- source_name (공개)
-- region (읍/면/동 수준만 공개)
-- **detail_address (비공개, 매칭 수락 시 상대에게 공개)**
-- quantity_estimate
-- frequency (상시/계절/일회성)
-- additional_notes
-- status (active/inactive)
+- author_id (user FK)
+- post_type (enum: 'offer' | 'request') — 있어요 / 구해요
+- title (필수)
+- body (필수)
+- region (필수, 공개 — 읍/면/동 수준)
+- image_url (선택)
+- status (enum: 'active' | 'closed')
 - created_at, updated_at
 
-(주의: contact 정보는 users 테이블에서 가져옴. sources에는 owner_id만 둠.)
-
-### 4. requests (자원 요청)
+### 3. matches (매칭) — 핵심
 - id (PK)
-- requester_id (users FK)
-- species_id (FK, nullable)
-- custom_species_name (species_id null일 때)
-- category
-- needed_quantity
-- purpose
-- preferred_region (optional)
-- status (open/matched/closed)
-- created_at, updated_at
-
-### 5. use_ideas (활용 아이디어)
-- id (PK)
-- species_id (FK)
-- contributor_id (users FK)
-- title
-- body
-- created_at
-
-### 6. matches (매칭) — 핵심
-- id (PK)
-- initiator_id (users FK)
-- target_type (enum: source/request)
-- target_source_id (FK, nullable)
-- target_request_id (FK, nullable)
-- target_owner_id (users FK, 자동 계산)
+- initiator_id (user FK) — 관심을 표명한 사람
+- post_id (posts FK) — 대상 게시글
+- post_author_id (user FK) — 게시글 작성자 (자동 계산)
 - message (initiator의 첫 메시지)
 - status (enum):
   - `interested` — 관심 표명 직후
-  - `accepted` — 보유자 수락. **이 순간 양쪽 연락처가 서로에게 공개됨**
-  - `declined` — 보유자 거절
+  - `accepted` — 게시글 작성자 수락. **이 순간 양쪽 연락처가 서로에게 공개됨**
+  - `declined` — 거절
   - `completed` — 거래 성사
   - `failed` — 거래 무산
-  - `closed` — 종료
 - contact_revealed_at (수락 시각, 연락처 공개 시점 기록)
-- created_at, updated_at
 - status_history (jsonb)
+- created_at, updated_at
 
-### 7. reports (신고)
+### 4. reports (신고)
 - id (PK)
-- reporter_id (users FK)
-- target_user_id (users FK)
+- reporter_id (user FK)
+- target_user_id (user FK)
 - match_id (FK, nullable)
 - reason (text)
 - status (pending/reviewed/resolved)
 - created_at
 
-### 8. blocks (차단)
+### 5. blocks (차단)
 - id (PK)
-- blocker_id (users FK)
-- blocked_id (users FK)
+- blocker_id (user FK)
+- blocked_id (user FK)
 - created_at
 - (unique: blocker_id + blocked_id)
 
@@ -131,85 +89,81 @@
 
 ### 단계별 흐름
 
-1. **수요자가 발생처 페이지 또는 보유자가 요청 페이지에서 "관심 표명" 클릭**
+1. **게시글 상세 페이지에서 "관심 있어요" 클릭**
    - 메시지 입력 모달 → matches에 `interested` row 생성
-   - 상대방에게 이메일 알림 + 마이페이지 알림 표시
+   - 게시글 작성자에게 알림 + 마이페이지 알림 표시
    - 이 시점에서 양쪽은 서로의 **닉네임·한 줄 소개·누적 활동 통계만** 봄
 
-2. **상대방이 마이페이지에서 매칭 검토**
-   - 표시 정보: 닉네임, 한 줄 소개, 가입일, 누적 활동(등록 발생처 N, 요청 N, 기여 아이디어 N, 성사 매칭 N, 신고 누적 여부)
+2. **게시글 작성자가 마이페이지에서 매칭 검토**
+   - 표시 정보: 닉네임, 한 줄 소개, 가입일, 누적 활동(등록 게시글 N, 성사 매칭 N, 신고 누적 여부)
    - 첨부된 메시지 확인
 
 3. **"수락" 클릭 시 확인 모달**
-   - 모달 문구: "수락하시면 [상대 닉네임]님께 귀하의 연락처(전화: 010-xxxx-xxxx, 이메일: xxx@xxx.com)가 즉시 공개됩니다. 또한 발생처의 상세 주소가 공개됩니다. 진행하시겠습니까?"
+   - 모달 문구: "수락하시면 [상대 닉네임]님께 귀하의 연락처(전화: 010-xxxx-xxxx, 이메일: xxx@xxx.com)가 즉시 공개됩니다. 진행하시겠습니까?"
    - 확인 시 status `accepted`, contact_revealed_at 기록
-   - **이 순간부터 양쪽이 서로의 phone, email, detail_address를 마이페이지의 해당 매칭 카드에서 볼 수 있음**
+   - **이 순간부터 양쪽이 서로의 phone, email을 마이페이지의 해당 매칭 카드에서 볼 수 있음**
 
 4. **거절 시** status `declined`, initiator에게 알림 (메시지 없이 사실만)
 
 5. **거래 진행 후 결과 표시** (양쪽 누구든 가능)
    - "거래 성사" → status `completed`
    - "거래 무산" → status `failed`
-   - 결과 표시 시 간단 피드백 (좋음/보통/문제 있음)
 
 ### 공개 가시성 규칙
 
-- 종 상세 페이지: "지금까지 N건의 관심, M건 매칭 진행, K건 성사" 누적 통계 (숫자만)
-- 발생처 목록 카드: "매칭 N건 진행 중" 뱃지
-- **누가 관심을 표명/매칭했는지는 본인과 상대만 본다.** 외부 페이지에서는 숫자만.
+- 게시글 목록/상세: 작성자 닉네임·지역·제목·본문 공개. 매칭 진행 건수(숫자만) 표시.
+- **누가 관심을 표명했는지는 본인과 게시글 작성자만 본다.** 외부에는 숫자만.
 - 마이페이지 매칭 카드에 상대 닉네임 표시. 수락 후에는 연락처도 같은 카드에서 표시.
 
 ## 핵심 보안 원칙
 
-1. **연락처(phone, email)와 detail_address는 매칭 `accepted` 상태가 아닌 한 절대 노출 금지.**
-2. RLS 정책으로 컬럼/row 단위 분리:
-   - users.phone, users.email → 본인 + admin + accepted 매칭의 상대만 SELECT 가능
-   - sources.detail_address → owner + admin + accepted 매칭의 상대만 SELECT 가능
+1. **연락처(phone, email)는 매칭 `accepted` 상태가 아닌 한 절대 노출 금지.**
+2. RLS 정책으로 row 단위 분리:
+   - user.phone, user.email → 본인 + admin + accepted 매칭의 상대만 SELECT 가능
 3. 차단(blocks) 관계인 사용자끼리는 서로의 매칭 신청 자체가 불가능.
 4. 신고 3건 누적 시 admin 검토 대기열 자동 진입.
 
-## 메인 페이지 카드 그리드 (Materiom 스타일)
+## 메인 페이지 피드
 
 카드 1장:
-- 1:1 비율 대표 이미지
-- 코드명 (JJU-AGR-001) — 모노스페이스 작게, 회색
-- 부산물 이름 — 크고 진하게
-- 카테고리 뱃지
-- 메타: "발생처 N · 활용 아이디어 N · 매칭 진행 N"
+- 대표 이미지 (있을 경우)
+- post_type 뱃지 (있어요 / 구해요)
+- 제목
+- 지역
+- 작성자 닉네임 · 작성일
 
-레이아웃: 모바일 1열, 태블릿 2열, 데스크톱 3~4열. Hover 부상.
+레이아웃: 모바일 1열, 태블릿 2열, 데스크톱 3열. Hover 부상.
 
 ## 톤·디자인
 
 - 배경: 베이지·아이보리 계열
-- 텍스트: 무채색, 카테고리 뱃지만 살짝 컬러
+- 텍스트: 무채색
 - 폰트: Pretendard
-- 박물관 카탈로그 + 필드 노트 결합
+- 필드 노트 결합
 
 ## 이용 약관 필수 포함 사항
 
-- "매칭 수락 시 양측의 전화번호·이메일·발생처 상세주소가 상대방에게 자동 공개됨"
-- "이용자가 등록한 부산물 종류(species) 정보와 활용 아이디어(use_ideas)는 사업 종료 시 제주특별자치도 소통협력센터에 귀속되어 공공누리 제2유형으로 공개됨"
+- "매칭 수락 시 양측의 전화번호·이메일이 상대방에게 자동 공개됨"
+- "이용자가 등록한 게시글 정보는 사업 종료 시 제주특별자치도 소통협력센터에 귀속되어 공공누리 제2유형으로 공개됨"
 - "이용자의 개인 식별 정보(연락처·이메일·매칭 이력)는 운영 주체인 주식회사 제주시트러스랩스가 별도 보관·관리하며, 공공 결과물 이관 대상에 포함되지 않음"
 - "부적절한 매칭 행위 발생 시 신고 가능하며, 누적 신고 시 이용 제한될 수 있음"
 
 ## 절대 하지 말 것
 
-1. 매칭 `accepted` 이전에 연락처/상세주소 노출 금지
+1. 매칭 `accepted` 이전에 연락처 노출 금지
 2. "나눔/공유 플랫폼" 같은 행정 카피 금지
 3. 지도 시각화 금지
 4. 결제·실시간 채팅 금지
-5. 비밀번호 로그인 금지 (매직링크만)
+5. 비밀번호 로그인 금지
 6. 외부 페이지에 매칭 당사자 신원 노출 금지 (숫자만)
 
 ## 기술 스택
 
-- Next.js + TypeScript + Vercel (기존 유지)
+- Next.js + TypeScript + Vercel
 - 인증·DB: **Supabase (Auth + Postgres + RLS)**
 - 스타일: Tailwind + shadcn/ui
 - 이메일 발송 (매칭 알림): Resend 또는 Supabase 기본
 
-
 ## 푸터 필수 문구
 
-"운영: 주식회사 제주시트러스랩스 · 본 프로젝트는 2026 제주생활실험 사업의 일환으로 진행되며, 부산물 정보 및 활용 아이디어 데이터는 제주특별자치도 소통협력센터에 귀속되어 공공누리 제2유형으로 공개됩니다."
+"운영: 주식회사 제주시트러스랩스 · 본 프로젝트는 2026 제주생활실험 사업의 일환으로 진행되며, 게시글 데이터는 제주특별자치도 소통협력센터에 귀속되어 공공누리 제2유형으로 공개됩니다."

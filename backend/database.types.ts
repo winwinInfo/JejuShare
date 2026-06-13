@@ -12,64 +12,201 @@ export type Database = {
   }
   public: {
     Tables: {
-      items: {
+      blocks: {
         Row: {
+          blocked_id: string
+          blocker_id: string
           created_at: string
-          description: Json | null
           id: number
-          owner_id: number | null
-          type: string | null
-          usage: string | null
         }
         Insert: {
+          blocked_id: string
+          blocker_id: string
           created_at?: string
-          description?: Json | null
           id?: number
-          owner_id?: number | null
-          type?: string | null
-          usage?: string | null
         }
         Update: {
+          blocked_id?: string
+          blocker_id?: string
           created_at?: string
-          description?: Json | null
           id?: number
-          owner_id?: number | null
-          type?: string | null
-          usage?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "items_owner_id_fkey"
-            columns: ["owner_id"]
+            foreignKeyName: "blocks_blocked_id_fkey"
+            columns: ["blocked_id"]
             isOneToOne: false
-            referencedRelation: "owners"
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blocks_blocker_id_fkey"
+            columns: ["blocker_id"]
+            isOneToOne: false
+            referencedRelation: "user"
             referencedColumns: ["id"]
           },
         ]
       }
-      owners: {
+      matches: {
+        Row: {
+          contact_revealed_at: string | null
+          created_at: string
+          id: number
+          initiator_id: string
+          message: string
+          post_author_id: string
+          post_id: number
+          status: Database["public"]["Enums"]["match_status"]
+          status_history: Json
+          updated_at: string
+        }
+        Insert: {
+          contact_revealed_at?: string | null
+          created_at?: string
+          id?: number
+          initiator_id: string
+          message: string
+          post_author_id: string
+          post_id: number
+          status?: Database["public"]["Enums"]["match_status"]
+          status_history?: Json
+          updated_at?: string
+        }
+        Update: {
+          contact_revealed_at?: string | null
+          created_at?: string
+          id?: number
+          initiator_id?: string
+          message?: string
+          post_author_id?: string
+          post_id?: number
+          status?: Database["public"]["Enums"]["match_status"]
+          status_history?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "matches_initiator_id_fkey"
+            columns: ["initiator_id"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "matches_post_author_id_fkey"
+            columns: ["post_author_id"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "matches_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      posts: {
+        Row: {
+          author_id: string
+          body: string
+          created_at: string
+          id: number
+          image_url: string | null
+          post_type: Database["public"]["Enums"]["post_type"]
+          region: string
+          status: Database["public"]["Enums"]["post_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_id: string
+          body: string
+          created_at?: string
+          id?: number
+          image_url?: string | null
+          post_type: Database["public"]["Enums"]["post_type"]
+          region: string
+          status?: Database["public"]["Enums"]["post_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          created_at?: string
+          id?: number
+          image_url?: string | null
+          post_type?: Database["public"]["Enums"]["post_type"]
+          region?: string
+          status?: Database["public"]["Enums"]["post_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "posts_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reports: {
         Row: {
           created_at: string
-          email: string | null
           id: number
-          location: Json | null
-          phone: string | null
+          match_id: number | null
+          reason: string
+          reporter_id: string
+          status: string
+          target_user_id: string
         }
         Insert: {
           created_at?: string
-          email?: string | null
           id?: number
-          location?: Json | null
-          phone?: string | null
+          match_id?: number | null
+          reason: string
+          reporter_id: string
+          status?: string
+          target_user_id: string
         }
         Update: {
           created_at?: string
-          email?: string | null
           id?: number
-          location?: Json | null
-          phone?: string | null
+          match_id?: number | null
+          reason?: string
+          reporter_id?: string
+          status?: string
+          target_user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "reports_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "matches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reports_reporter_id_fkey"
+            columns: ["reporter_id"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reports_target_user_id_fkey"
+            columns: ["target_user_id"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user: {
         Row: {
@@ -109,7 +246,9 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      match_status: "interested" | "accepted" | "declined" | "completed" | "failed"
+      post_status: "active" | "closed"
+      post_type: "offer" | "request"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -148,3 +287,80 @@ export type Tables<
       ? R
       : never
     : never
+
+export type TablesInsert<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
+    : never
+
+export type TablesUpdate<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
+    : never
+
+export type Enums<
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never = never,
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never
+
+export const Constants = {
+  public: {
+    Enums: {
+      match_status: ["interested", "accepted", "declined", "completed", "failed"],
+      post_status: ["active", "closed"],
+      post_type: ["offer", "request"],
+    },
+  },
+} as const

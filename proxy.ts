@@ -9,7 +9,7 @@ const PUBLIC_PATHS = [
   '/',
   '/login',
   '/auth/callback',
-  '/species',
+  '/posts',
 ]
 
 /** 로그인은 됐지만 프로필 완성 여부를 체크하지 않을 경로 */

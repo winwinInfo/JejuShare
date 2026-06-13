@@ -29,11 +29,19 @@ export async function SiteHeader() {
             제주의 버려지는 자원을 함께 발견하고, 기록하고, 다시 쓰는 사람들
           </p>
         </Link>
-        <nav className="shrink-0">
+        <nav className="shrink-0 flex items-center gap-5">
           {user ? (
-            <Link href="/my" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              {displayName ?? '마이페이지'}
-            </Link>
+            <>
+              <Link
+                href="/posts/new"
+                className="text-sm font-medium text-foreground bg-foreground/8 hover:bg-foreground/12 px-3 py-1.5 rounded-lg transition-colors"
+              >
+                글 올리기
+              </Link>
+              <Link href="/my" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                {displayName ?? '마이페이지'}
+              </Link>
+            </>
           ) : (
             <Link href="/login" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               로그인
