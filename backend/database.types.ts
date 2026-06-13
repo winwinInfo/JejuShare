@@ -285,12 +285,60 @@ export type Database = {
           },
         ]
       }
+      stories: {
+        Row: {
+          body: string
+          cover_image_url: string | null
+          created_at: string
+          id: number
+          match_id: number | null
+          published: boolean
+          published_at: string | null
+          summary: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          body?: string
+          cover_image_url?: string | null
+          created_at?: string
+          id?: number
+          match_id?: number | null
+          published?: boolean
+          published_at?: string | null
+          summary?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          cover_image_url?: string | null
+          created_at?: string
+          id?: number
+          match_id?: number | null
+          published?: boolean
+          published_at?: string | null
+          summary?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stories_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "matches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user: {
         Row: {
           bio: string | null
           created_at: string
           email: string | null
           id: string
+          is_admin: boolean
           nickname: string | null
           phone: string | null
           terms_agreed_at: string | null
@@ -300,6 +348,7 @@ export type Database = {
           created_at?: string
           email?: string | null
           id?: string
+          is_admin?: boolean
           nickname?: string | null
           phone?: string | null
           terms_agreed_at?: string | null
@@ -309,6 +358,7 @@ export type Database = {
           created_at?: string
           email?: string | null
           id?: string
+          is_admin?: boolean
           nickname?: string | null
           phone?: string | null
           terms_agreed_at?: string | null
@@ -320,7 +370,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_is_admin: { Args: never; Returns: boolean }
     }
     Enums: {
       match_status:

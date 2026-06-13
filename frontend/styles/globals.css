@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 /* Paperozi (Paperlogy) — 본문 폰트 */
 @font-face {

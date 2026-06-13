@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { createSupabaseServer } from '@/backend/supabase'
+import { NavTabs } from '@/frontend/components/NavTabs'
 
 export async function SiteHeader() {
   const supabase = await createSupabaseServer()
@@ -17,7 +18,7 @@ export async function SiteHeader() {
 
   return (
     <header className="border-b border-border bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-20">
-      <div className="mx-auto flex max-w-6xl items-end justify-between gap-4 px-5 py-5">
+      <div className="mx-auto flex max-w-6xl items-end justify-between gap-4 px-5 pt-5 pb-3">
         <Link href="/" className="group">
           <h1
             className="text-xl font-semibold tracking-tight"
@@ -49,6 +50,7 @@ export async function SiteHeader() {
           )}
         </nav>
       </div>
+      <NavTabs />
     </header>
   )
 }
