@@ -1,16 +1,10 @@
 import Link from 'next/link'
-import { getStories } from '@/backend/queries/stories'
+import { stories } from '@/content/stories/index'
 
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('ko-KR', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
-}
-
-export default async function HistoryPage() {
-  const stories = await getStories()
+export default function HistoryPage() {
+  const sorted = [...stories].sort(
+    (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+  )
 
   return (
     <main className="mx-auto max-w-3xl px-5 py-10">
@@ -21,35 +15,42 @@ export default async function HistoryPage() {
         </p>
       </div>
 
-      {stories.length === 0 ? (
+      {sorted.length === 0 ? (
         <p className="text-sm text-muted-foreground">아직 등록된 이력이 없습니다.</p>
       ) : (
         <ol className="divide-y divide-border">
-          {stories.map((story) => (
-            <li key={story.id}>
-              <Link
-                href={`/history/${story.id}`}
-                className="group flex items-start justify-between gap-6 py-6 hover:opacity-80 transition-opacity"
-              >
-                <div className="min-w-0">
-                  <p className="text-base font-medium leading-snug group-hover:underline underline-offset-2">
-                    {story.title}
-                  </p>
-                  {story.summary && (
-                    <p className="mt-1.5 text-sm text-muted-foreground line-clamp-2">
-                      {story.summary}
-                    </p>
-                  )}
-                </div>
-                <time
-                  className="shrink-0 text-xs text-muted-foreground pt-0.5 tabular-nums"
-                  dateTime={story.publishedAt ?? story.createdAt}
+          {sorted.map((story) => {
+            const date = new Date(story.publishedAt).toLocaleDateString('ko-KR', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })
+            return (
+              <li key={story.slug}>
+                <Link
+                  href={`/history/${story.slug}`}
+                  className="group flex items-start justify-between gap-6 py-6 hover:opacity-80 transition-opacity"
                 >
-                  {formatDate(story.publishedAt ?? story.createdAt)}
-                </time>
-              </Link>
-            </li>
-          ))}
+                  <div className="min-w-0">
+                    <p className="text-base font-medium leading-snug group-hover:underline underline-offset-2">
+                      {story.title}
+                    </p>
+                    {story.summary && (
+                      <p className="mt-1.5 text-sm text-muted-foreground line-clamp-2">
+                        {story.summary}
+                      </p>
+                    )}
+                  </div>
+                  <time
+                    className="shrink-0 text-xs text-muted-foreground pt-0.5 tabular-nums"
+                    dateTime={story.publishedAt}
+                  >
+                    {date}
+                  </time>
+                </Link>
+              </li>
+            )
+          })}
         </ol>
       )}
     </main>
