@@ -27,7 +27,9 @@ export async function SiteHeader() {
             제주 새활용 도감
           </h1>
           <p className="mt-1.5 text-xs sm:text-sm leading-relaxed text-muted-foreground">
-            제주의 버려지는 자원을 함께 발견하고, 기록하고, 다시 쓰는 사람들
+            제주의 버려지는 자원을 함께 발견하고, 기록하고,{' '}
+            <br className="sm:hidden" />
+            다시 쓰는 사람들
           </p>
         </Link>
         <nav className="shrink-0 flex items-center gap-5">
