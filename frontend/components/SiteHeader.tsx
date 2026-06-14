@@ -18,15 +18,15 @@ export async function SiteHeader() {
 
   return (
     <header className="border-b border-border bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-20">
-      <div className="mx-auto flex max-w-6xl items-end justify-between gap-4 px-5 pt-5 pb-3">
+      <div className="mx-auto flex max-w-6xl items-end justify-between gap-4 px-5 pt-6 pb-4">
         <Link href="/" className="group">
           <h1
-            className="text-xl font-semibold tracking-tight"
+            className="text-2xl sm:text-3xl font-semibold tracking-tight leading-none transition-colors group-hover:text-foreground/80"
             style={{ fontFamily: '"EutmanGungseo", serif' }}
           >
             제주 새활용 도감
           </h1>
-          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+          <p className="mt-1.5 text-xs sm:text-sm leading-relaxed text-muted-foreground">
             제주의 버려지는 자원을 함께 발견하고, 기록하고, 다시 쓰는 사람들
           </p>
         </Link>

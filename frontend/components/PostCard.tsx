@@ -12,6 +12,17 @@ const TYPE_STYLE: Record<Post['postType'], string> = {
   request: 'bg-amber-50 text-amber-700',
 }
 
+/** 한눈에 유형을 구분하기 위한 카드 좌측 테두리 색 (필터 칩 색과 동일) */
+const TYPE_BORDER: Record<Post['postType'], string> = {
+  offer: 'border-l-emerald-500',
+  request: 'border-l-amber-500',
+}
+
+const TYPE_DOT: Record<Post['postType'], string> = {
+  offer: 'bg-emerald-500',
+  request: 'bg-amber-500',
+}
+
 export function PostCard({ post }: { post: Post }) {
   const relativeDate = new Intl.RelativeTimeFormat('ko', { numeric: 'auto' })
   const diffDays = Math.round(
@@ -25,7 +36,7 @@ export function PostCard({ post }: { post: Post }) {
   return (
     <Link
       href={`/posts/${post.id}`}
-      className="group flex flex-col overflow-hidden rounded-xl border border-border bg-background hover:shadow-md transition-shadow"
+      className={`group flex flex-col overflow-hidden rounded-xl border border-border border-l-4 ${TYPE_BORDER[post.postType]} bg-background transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md`}
     >
       <div className="aspect-[4/3] bg-muted overflow-hidden">
         {post.imageUrl ? (
@@ -49,7 +60,8 @@ export function PostCard({ post }: { post: Post }) {
 
       <div className="flex flex-col gap-2 p-4">
         <div className="flex items-center gap-2">
-          <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${TYPE_STYLE[post.postType]}`}>
+          <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full ${TYPE_STYLE[post.postType]}`}>
+            <span className={`size-1.5 rounded-full ${TYPE_DOT[post.postType]}`} />
             {TYPE_LABEL[post.postType]}
           </span>
           <span className="text-xs text-muted-foreground">{post.region}</span>
