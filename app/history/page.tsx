@@ -9,14 +9,14 @@ export default function HistoryPage() {
   return (
     <main className="mx-auto max-w-3xl px-5 py-10">
       <div className="mb-10">
-        <h2 className="text-2xl font-semibold tracking-tight">새활용 이력</h2>
+        <h2 className="text-2xl font-semibold tracking-tight">새활용 늬우스</h2>
         <p className="mt-2 text-sm text-muted-foreground">
           제주의 버려지는 자원이 다시 쓰인 기록들.
         </p>
       </div>
 
       {sorted.length === 0 ? (
-        <p className="text-sm text-muted-foreground">아직 등록된 이력이 없습니다.</p>
+        <p className="text-sm text-muted-foreground">아직 등록된 늬우스가 없습니다.</p>
       ) : (
         <ol className="divide-y divide-border">
           {sorted.map((story) => {

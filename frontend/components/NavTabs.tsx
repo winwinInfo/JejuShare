@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 
 const tabs = [
   { label: '도감', href: '/' },
-  { label: '새활용 이력', href: '/history' },
+  { label: '새활용 늬우스', href: '/history' },
 ]
 
 export function NavTabs() {

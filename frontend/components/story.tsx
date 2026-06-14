@@ -1,5 +1,5 @@
 /**
- * 새활용 이력 글 작성용 공유 컴포넌트 셋.
+ * 새활용 늬우스 글 작성용 공유 컴포넌트 셋.
  *
  * 사용 예시:
  *   import { Lead, H2, P, Figure, Callout, Divider, TwoCol } from '@/frontend/components/story'
@@ -32,7 +32,7 @@ export function StoryLayout({
         href="/history"
         className="text-xs text-muted-foreground hover:text-foreground transition-colors"
       >
-        ← 새활용 이력으로
+        ← 새활용 늬우스로
       </Link>
 
       {meta.coverImage && (
