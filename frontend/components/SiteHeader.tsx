@@ -20,24 +20,24 @@ export async function SiteHeader() {
     <header className="border-b border-border bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-20">
       <div className="mx-auto max-w-6xl px-5 pt-6 pb-4">
         <div className="flex items-center justify-between gap-4">
-          <Link href="/" className="group">
+          <Link href="/" className="group shrink-0">
             <h1
-              className="text-2xl sm:text-3xl font-semibold tracking-tight leading-none transition-colors group-hover:text-foreground/80"
+              className="text-xl sm:text-3xl font-semibold tracking-tight leading-none whitespace-nowrap transition-colors group-hover:text-foreground/80"
               style={{ fontFamily: '"EutmanGungseo", serif' }}
             >
               제주 새활용 도감
             </h1>
           </Link>
-          <nav className="shrink-0 flex items-center gap-5">
+          <nav className="flex min-w-0 items-center justify-end gap-3 sm:gap-5">
             {user ? (
               <>
                 <Link
                   href="/posts/new"
-                  className="text-sm font-medium text-foreground bg-foreground/8 hover:bg-foreground/12 px-3 py-1.5 rounded-lg transition-colors"
+                  className="shrink-0 text-sm font-medium text-foreground bg-foreground/8 hover:bg-foreground/12 px-3 py-1.5 rounded-lg transition-colors"
                 >
                   글 올리기
                 </Link>
-                <Link href="/my" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <Link href="/my" className="max-w-[34vw] truncate text-sm text-muted-foreground hover:text-foreground transition-colors sm:max-w-none">
                   {displayName ?? '마이페이지'}
                 </Link>
               </>

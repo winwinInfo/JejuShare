@@ -35,7 +35,8 @@ export function HomeIntro() {
       </p>
 
       <p className="mt-2 break-keep text-xs leading-relaxed text-muted-foreground">
-        농수산 부산물부터 카페 커피박, 인쇄소 파지, 묵은 달력까지 — 다시 쓸 수 있는 건 무엇이든.
+        제주에서 무언가를 만드는 모든 과정에서 남게 되는 것들 — 농수산 부산물부터 카페 커피박,
+        인쇄소 파지, 묵은 달력까지.
       </p>
 
       <ol className="mt-6 grid gap-5 sm:grid-cols-3">
