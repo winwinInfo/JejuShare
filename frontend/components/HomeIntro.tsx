@@ -19,19 +19,19 @@ const STEPS = [
 export function HomeIntro() {
   return (
     <section className="mb-8 rounded-2xl border border-border bg-card p-6 sm:p-7">
-      <p className="max-w-2xl text-sm leading-relaxed text-foreground/90">
+      <p className="break-keep text-sm leading-relaxed text-foreground/90">
         <span className="font-medium">제주 새활용 도감</span>은 제주에서 버려지는 농수산
         부산물을 기록하고,{' '}
         <span className="whitespace-nowrap">
           <span className="inline-block size-1.5 translate-y-px rounded-full bg-emerald-500" />{' '}
           있어요
         </span>
-        (가진 사람)와{' '}
+        (자원 보유자)와{' '}
         <span className="whitespace-nowrap">
           <span className="inline-block size-1.5 translate-y-px rounded-full bg-amber-500" />{' '}
           구해요
         </span>
-        (필요한 사람)를 잇는 공간입니다.
+        (자원 수요자)를 잇는 공간입니다.
       </p>
 
       <ol className="mt-6 grid gap-5 sm:grid-cols-3">
