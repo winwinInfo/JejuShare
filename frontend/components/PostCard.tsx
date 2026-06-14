@@ -33,9 +33,9 @@ export function PostCard({ post }: { post: Post }) {
             <Image
               src="/og-image.png"
               alt=""
-              width={596}
-              height={530}
-              className="max-h-full w-auto object-contain group-hover:scale-105 transition-transform duration-300"
+              width={1200}
+              height={630}
+              className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-300"
             />
           </div>
         )}
