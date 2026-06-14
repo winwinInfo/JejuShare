@@ -6,6 +6,7 @@ import { getPostById } from '@/backend/queries/posts'
 import { getLikeStatus, getLikeCount } from '@/backend/queries/likes'
 import { getEmailSentStatus } from '@/backend/queries/email'
 import { PostActions } from '@/frontend/components/PostActions'
+import { PostOwnerActions } from '@/frontend/components/PostOwnerActions'
 import { PostTypeBadge } from '@/frontend/components/PostTypeBadge'
 
 export default async function PostDetailPage({
@@ -75,15 +76,19 @@ export default async function PostDetailPage({
 
         <p className="text-sm leading-relaxed whitespace-pre-wrap">{post.body}</p>
 
-        <PostActions
-          postId={post.id}
-          initialLiked={liked}
-          initialLikeCount={likeCount}
-          emailSent={emailSent}
-          hasContactEmail={hasContactEmail}
-          isOwner={isOwner}
-          isLoggedIn={!!user}
-        />
+        {isOwner ? (
+          <PostOwnerActions postId={post.id} />
+        ) : (
+          <PostActions
+            postId={post.id}
+            initialLiked={liked}
+            initialLikeCount={likeCount}
+            emailSent={emailSent}
+            hasContactEmail={hasContactEmail}
+            isOwner={isOwner}
+            isLoggedIn={!!user}
+          />
+        )}
       </article>
     </main>
   )

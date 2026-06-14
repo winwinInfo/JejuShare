@@ -44,6 +44,40 @@ export async function createPost(form: PostForm): Promise<ActionResult> {
   redirect('/')
 }
 
+export async function updatePost(postId: number, form: PostForm): Promise<ActionResult> {
+  const supabase = await createSupabaseServer()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { ok: false, error: '로그인이 필요합니다.' }
+
+  if (!form.title.trim()) return { ok: false, error: '제목을 입력해주세요.' }
+  if (!form.body.trim()) return { ok: false, error: '내용을 입력해주세요.' }
+  if (!form.region.trim()) return { ok: false, error: '지역을 선택해주세요.' }
+
+  // author_id 조건으로 본인 글만 수정 가능
+  const { error } = await supabase
+    .from('posts')
+    .update({
+      post_type: form.postType,
+      title: form.title.trim(),
+      body: form.body.trim(),
+      region: form.region,
+      image_url: form.imageUrl,
+      contact_email: form.contactEmail,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', postId)
+    .eq('author_id', user.id)
+
+  if (error) {
+    console.error('updatePost error:', error)
+    return { ok: false, error: '수정에 실패했습니다.' }
+  }
+
+  revalidatePath('/')
+  revalidatePath(`/posts/${postId}`)
+  redirect(`/posts/${postId}`)
+}
+
 export async function deletePost(postId: number): Promise<ActionResult> {
   const supabase = await createSupabaseServer()
   const { data: { user } } = await supabase.auth.getUser()

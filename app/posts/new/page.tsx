@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createSupabaseServer } from '@/backend/supabase'
-import { PostNewForm } from '@/frontend/components/PostNewForm'
+import { PostForm } from '@/frontend/components/PostForm'
 
 export default async function PostNewPage() {
   const supabase = await createSupabaseServer()
@@ -30,7 +30,7 @@ export default async function PostNewPage() {
         제주의 미활용 자원을 기록해주세요.
       </p>
 
-      <PostNewForm userId={user.id} defaultEmail={defaultEmail} />
+      <PostForm userId={user.id} defaultEmail={defaultEmail} />
     </main>
   )
 }

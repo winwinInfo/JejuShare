@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import { createPost } from '@/backend/actions/posts'
+import { createPost, updatePost } from '@/backend/actions/posts'
 import { getSupabaseBrowser } from '@/frontend/lib/supabase-browser'
 import type { PostType } from '@/backend/types'
 
@@ -56,14 +56,33 @@ async function compressImage(file: File): Promise<Blob> {
   })
 }
 
-export function PostNewForm({ userId, defaultEmail }: { userId: string; defaultEmail: string }) {
-  const [postType, setPostType] = useState<PostType>('offer')
-  const [title, setTitle] = useState('')
-  const [body, setBody] = useState('')
-  const [region, setRegion] = useState('')
-  const [contactEmail, setContactEmail] = useState(defaultEmail)
-  const [imagePreview, setImagePreview] = useState<string | null>(null)
-  const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null)
+type PostFormInitial = {
+  postType: PostType
+  title: string
+  body: string
+  region: string
+  imageUrl: string | null
+  contactEmail: string | null
+}
+
+type Props = {
+  userId: string
+  defaultEmail: string
+  /** 있으면 수정 모드, 없으면 작성 모드 */
+  postId?: number
+  initial?: PostFormInitial
+}
+
+export function PostForm({ userId, defaultEmail, postId, initial }: Props) {
+  const isEdit = postId != null
+
+  const [postType, setPostType] = useState<PostType>(initial?.postType ?? 'offer')
+  const [title, setTitle] = useState(initial?.title ?? '')
+  const [body, setBody] = useState(initial?.body ?? '')
+  const [region, setRegion] = useState(initial?.region ?? '')
+  const [contactEmail, setContactEmail] = useState(initial?.contactEmail ?? defaultEmail)
+  const [imagePreview, setImagePreview] = useState<string | null>(initial?.imageUrl ?? null)
+  const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(initial?.imageUrl ?? null)
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
@@ -119,20 +138,24 @@ export function PostNewForm({ userId, defaultEmail }: { userId: string; defaultE
     setSubmitting(true)
     setError(null)
 
-    const result = await createPost({
+    const payload = {
       postType,
       title,
       body,
       region,
       imageUrl: uploadedImageUrl,
       contactEmail: contactEmail.trim() || null,
-    })
+    }
 
+    const result = isEdit
+      ? await updatePost(postId, payload)
+      : await createPost(payload)
+
+    // 성공 시 서버 액션이 redirect 처리. 실패만 여기서 표시.
     if (!result.ok) {
       setError(result.error)
       setSubmitting(false)
     }
-    // ok이면 서버 액션이 redirect('/') 처리
   }
 
   return (
@@ -316,7 +339,9 @@ export function PostNewForm({ userId, defaultEmail }: { userId: string; defaultE
         disabled={submitting || uploading}
         className="w-full rounded-xl bg-foreground py-3 text-sm font-medium text-background hover:opacity-90 disabled:opacity-40 transition-opacity"
       >
-        {submitting ? '등록 중…' : '도감에 올리기'}
+        {isEdit
+          ? (submitting ? '수정 중…' : '수정 완료')
+          : (submitting ? '등록 중…' : '도감에 올리기')}
       </button>
     </form>
   )
