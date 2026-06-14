@@ -2,7 +2,7 @@
  * 새 글을 작성할 때 이 파일을 복사해서 시작하세요.
  * 사용 가능한 컴포넌트: Lead, H2, H3, P, Callout, Divider, Figure, TwoCol
  */
-import { Lead, H2, P, Callout, Divider } from '@/frontend/components/story'
+import { Lead, H2, P, Callout, Divider, Figure } from '@/frontend/components/story'
 
 export default function GamgyulUpcycle() {
   return (
@@ -41,6 +41,12 @@ export default function GamgyulUpcycle() {
         갖췄다. 전 제품을 비건 인증으로 운영하는 자체 클린뷰티 브랜드
         '제주랩스(JEJULABS)'도 이 원료에서 출발한다.
       </P>
+
+      <Figure
+        src="/stories/gamgyul-product.jpg"
+        alt="제주랩스(JEJULABS) 감귤박 화장품 ‘REWIND AGAIN’ 라인 — 페이셜 폼, 토너, 로션"
+        caption="감귤박에서 출발한 제주랩스(JEJULABS) 스킨케어. 왼쪽부터 페이셜 폼·토너·로션."
+      />
 
       <Divider />
 
