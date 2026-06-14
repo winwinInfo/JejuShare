@@ -91,7 +91,7 @@ export function PostsFeed({ posts, isLoggedIn }: { posts: Post[]; isLoggedIn: bo
                 href={isLoggedIn ? '/posts/new' : '/login'}
                 className="inline-block rounded-xl bg-foreground px-4 py-2.5 text-sm font-medium text-background transition-opacity hover:opacity-90"
               >
-                {isLoggedIn ? '첫 기록 남기기 →' : '로그인하고 기록 남기기 →'}
+                {isLoggedIn ? '첫 글 올리기 →' : '로그인하고 글 올리기 →'}
               </Link>
             </div>
           ) : query.trim() ? (
