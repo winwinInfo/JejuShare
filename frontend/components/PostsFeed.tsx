@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import type { Post, PostType } from '@/backend/types'
 import { PostCard } from '@/frontend/components/PostCard'
+import { SearchInput } from '@/frontend/components/SearchInput'
 
 type Filter = 'all' | PostType
 
@@ -20,17 +21,36 @@ const FILTERS: {
 
 export function PostsFeed({ posts, isLoggedIn }: { posts: Post[]; isLoggedIn: boolean }) {
   const [filter, setFilter] = useState<Filter>('all')
+  const [query, setQuery] = useState('')
+
+  // 검색어로 먼저 걸러낸 집합 (칩 건수도 이 기준)
+  const searched = useMemo(() => {
+    const q = query.trim().toLowerCase()
+    if (!q) return posts
+    return posts.filter((p) =>
+      [p.title, p.body, p.region, p.author.nickname]
+        .some((field) => field.toLowerCase().includes(q))
+    )
+  }, [posts, query])
 
   const counts: Record<Filter, number> = {
-    all: posts.length,
-    offer: posts.filter((p) => p.postType === 'offer').length,
-    request: posts.filter((p) => p.postType === 'request').length,
+    all: searched.length,
+    offer: searched.filter((p) => p.postType === 'offer').length,
+    request: searched.filter((p) => p.postType === 'request').length,
   }
 
-  const visible = filter === 'all' ? posts : posts.filter((p) => p.postType === filter)
+  const visible = filter === 'all' ? searched : searched.filter((p) => p.postType === filter)
 
   return (
     <div>
+      <div className="mb-4 max-w-md">
+        <SearchInput
+          value={query}
+          onChange={setQuery}
+          placeholder="자원·지역·작성자 검색 (예: 감귤박, 애월)"
+        />
+      </div>
+
       <div className="mb-6 flex flex-wrap items-center gap-2">
         {FILTERS.map(({ key, label, dot, active }) => {
           const isActive = filter === key
@@ -74,6 +94,10 @@ export function PostsFeed({ posts, isLoggedIn }: { posts: Post[]; isLoggedIn: bo
                 {isLoggedIn ? '첫 기록 남기기 →' : '로그인하고 기록 남기기 →'}
               </Link>
             </div>
+          ) : query.trim() ? (
+            <p className="text-muted-foreground">
+              ‘{query.trim()}’에 대한 검색 결과가 없습니다.
+            </p>
           ) : (
             <p className="text-muted-foreground">해당하는 게시글이 없습니다.</p>
           )}
