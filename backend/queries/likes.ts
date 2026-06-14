@@ -33,7 +33,7 @@ export async function getLikedPosts(): Promise<Post[]> {
 
   const { data, error } = await supabase
     .from('likes')
-    .select('post_id, posts(id, post_type, title, body, region, image_url, status, created_at, user(id, nickname))')
+    .select('post_id, posts(id, post_type, title, body, region, image_url, amount, timing, status, created_at, user(id, nickname))')
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
 
@@ -54,6 +54,8 @@ export async function getLikedPosts(): Promise<Post[]> {
         body: p.body,
         region: p.region,
         imageUrl: p.image_url,
+        amount: p.amount,
+        timing: p.timing,
         status: p.status as Post['status'],
         createdAt: p.created_at,
         author: { id: author?.id ?? '', nickname: author?.nickname ?? '알 수 없음' },

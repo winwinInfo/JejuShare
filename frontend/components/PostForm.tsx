@@ -63,6 +63,8 @@ type PostFormInitial = {
   region: string
   imageUrl: string | null
   contactEmail: string | null
+  amount: string | null
+  timing: string | null
 }
 
 type Props = {
@@ -80,7 +82,12 @@ export function PostForm({ userId, defaultEmail, postId, initial }: Props) {
   const [title, setTitle] = useState(initial?.title ?? '')
   const [body, setBody] = useState(initial?.body ?? '')
   const [region, setRegion] = useState(initial?.region ?? '')
+  const [amount, setAmount] = useState(initial?.amount ?? '')
+  const [timing, setTiming] = useState(initial?.timing ?? '')
   const [contactEmail, setContactEmail] = useState(initial?.contactEmail ?? defaultEmail)
+
+  const amountLabel = postType === 'offer' ? '발생하는 양' : '필요한 양'
+  const timingLabel = postType === 'offer' ? '발생 시기' : '필요한 시기'
   const [imagePreview, setImagePreview] = useState<string | null>(initial?.imageUrl ?? null)
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(initial?.imageUrl ?? null)
   const [uploading, setUploading] = useState(false)
@@ -145,6 +152,8 @@ export function PostForm({ userId, defaultEmail, postId, initial }: Props) {
       region,
       imageUrl: uploadedImageUrl,
       contactEmail: contactEmail.trim() || null,
+      amount: amount.trim() || null,
+      timing: timing.trim() || null,
     }
 
     const result = isEdit
@@ -251,6 +260,36 @@ export function PostForm({ userId, defaultEmail, postId, initial }: Props) {
           placeholder="자원의 종류, 상태, 수량, 보관 방법 등 상세히 적어주세요."
           className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-foreground/20 resize-none"
         />
+      </div>
+
+      {/* 양 / 시기 (유형에 따라 라벨 전환) */}
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label className="block text-xs font-medium text-muted-foreground mb-1.5">
+            {amountLabel} <span className="text-muted-foreground/60">(선택)</span>
+          </label>
+          <input
+            type="text"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            maxLength={50}
+            placeholder={postType === 'offer' ? '예: 주 2톤, 200kg' : '예: 월 500kg'}
+            className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-foreground/20"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-muted-foreground mb-1.5">
+            {timingLabel} <span className="text-muted-foreground/60">(선택)</span>
+          </label>
+          <input
+            type="text"
+            value={timing}
+            onChange={(e) => setTiming(e.target.value)}
+            maxLength={50}
+            placeholder={postType === 'offer' ? '예: 11월~2월, 상시' : '예: 8월 중, 협의'}
+            className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-foreground/20"
+          />
+        </div>
       </div>
 
       {/* 연락 이메일 */}

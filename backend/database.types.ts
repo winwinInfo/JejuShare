@@ -185,6 +185,7 @@ export type Database = {
       }
       posts: {
         Row: {
+          amount: string | null
           author_id: string
           body: string
           contact_email: string | null
@@ -194,10 +195,12 @@ export type Database = {
           post_type: Database["public"]["Enums"]["post_type"]
           region: string
           status: Database["public"]["Enums"]["post_status"]
+          timing: string | null
           title: string
           updated_at: string
         }
         Insert: {
+          amount?: string | null
           author_id: string
           body: string
           contact_email?: string | null
@@ -207,10 +210,12 @@ export type Database = {
           post_type: Database["public"]["Enums"]["post_type"]
           region: string
           status?: Database["public"]["Enums"]["post_status"]
+          timing?: string | null
           title: string
           updated_at?: string
         }
         Update: {
+          amount?: string | null
           author_id?: string
           body?: string
           contact_email?: string | null
@@ -220,6 +225,7 @@ export type Database = {
           post_type?: Database["public"]["Enums"]["post_type"]
           region?: string
           status?: Database["public"]["Enums"]["post_status"]
+          timing?: string | null
           title?: string
           updated_at?: string
         }

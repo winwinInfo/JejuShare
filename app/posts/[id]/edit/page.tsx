@@ -51,6 +51,8 @@ export default async function PostEditPage({
           region: post.region,
           imageUrl: post.imageUrl,
           contactEmail: row?.contact_email ?? null,
+          amount: post.amount,
+          timing: post.timing,
         }}
       />
     </main>

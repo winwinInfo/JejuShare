@@ -11,6 +11,8 @@ export type Post = {
   body: string
   region: string
   imageUrl: string | null
+  amount: string | null
+  timing: string | null
   status: PostStatus
   createdAt: string
   author: {

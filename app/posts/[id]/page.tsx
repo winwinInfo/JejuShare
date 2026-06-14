@@ -36,6 +36,9 @@ export default async function PostDetailPage({
     year: 'numeric', month: 'long', day: 'numeric',
   })
 
+  const amountLabel = post.postType === 'offer' ? '발생하는 양' : '필요한 양'
+  const timingLabel = post.postType === 'offer' ? '발생 시기' : '필요한 시기'
+
   return (
     <main className="mx-auto max-w-2xl px-5 py-8">
       <Link
@@ -70,6 +73,23 @@ export default async function PostDetailPage({
               priority
             />
           </div>
+        )}
+
+        {(post.amount || post.timing) && (
+          <dl className="rounded-xl border border-border divide-y divide-border text-sm">
+            {post.amount && (
+              <div className="flex gap-4 p-4">
+                <dt className="w-24 shrink-0 text-muted-foreground">{amountLabel}</dt>
+                <dd className="font-medium">{post.amount}</dd>
+              </div>
+            )}
+            {post.timing && (
+              <div className="flex gap-4 p-4">
+                <dt className="w-24 shrink-0 text-muted-foreground">{timingLabel}</dt>
+                <dd className="font-medium">{post.timing}</dd>
+              </div>
+            )}
+          </dl>
         )}
 
         <hr className="border-border" />

@@ -9,6 +9,8 @@ function toPost(row: {
   body: string
   region: string
   image_url: string | null
+  amount: string | null
+  timing: string | null
   status: string
   created_at: string
   user: { id: string; nickname: string | null } | null
@@ -20,6 +22,8 @@ function toPost(row: {
     body: row.body,
     region: row.region,
     imageUrl: row.image_url,
+    amount: row.amount,
+    timing: row.timing,
     status: row.status as Post['status'],
     createdAt: row.created_at,
     author: {
@@ -33,7 +37,7 @@ function toPost(row: {
 export async function getPosts(): Promise<Post[]> {
   const { data, error } = await supabasePublic
     .from('posts')
-    .select('id, post_type, title, body, region, image_url, status, created_at, user(id, nickname)')
+    .select('id, post_type, title, body, region, image_url, amount, timing, status, created_at, user(id, nickname)')
     .eq('status', 'active')
     .order('created_at', { ascending: false })
 
@@ -49,7 +53,7 @@ export async function getPosts(): Promise<Post[]> {
 export async function getPostById(id: number): Promise<Post | null> {
   const { data, error } = await supabasePublic
     .from('posts')
-    .select('id, post_type, title, body, region, image_url, status, created_at, user(id, nickname)')
+    .select('id, post_type, title, body, region, image_url, amount, timing, status, created_at, user(id, nickname)')
     .eq('id', id)
     .single()
 
@@ -69,7 +73,7 @@ export async function getMyPosts(): Promise<Post[]> {
 
   const { data, error } = await supabase
     .from('posts')
-    .select('id, post_type, title, body, region, image_url, status, created_at, user(id, nickname)')
+    .select('id, post_type, title, body, region, image_url, amount, timing, status, created_at, user(id, nickname)')
     .eq('author_id', user.id)
     .order('created_at', { ascending: false })
 

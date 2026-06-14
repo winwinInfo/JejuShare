@@ -13,6 +13,8 @@ export type PostForm = {
   region: string
   imageUrl: string | null
   contactEmail: string | null
+  amount: string | null
+  timing: string | null
 }
 
 export async function createPost(form: PostForm): Promise<ActionResult> {
@@ -32,6 +34,8 @@ export async function createPost(form: PostForm): Promise<ActionResult> {
     region: form.region,
     image_url: form.imageUrl,
     contact_email: form.contactEmail,
+    amount: form.amount,
+    timing: form.timing,
     status: 'active',
   })
 
@@ -63,6 +67,8 @@ export async function updatePost(postId: number, form: PostForm): Promise<Action
       region: form.region,
       image_url: form.imageUrl,
       contact_email: form.contactEmail,
+      amount: form.amount,
+      timing: form.timing,
       updated_at: new Date().toISOString(),
     })
     .eq('id', postId)
