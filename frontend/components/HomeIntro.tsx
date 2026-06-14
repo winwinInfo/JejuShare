@@ -35,7 +35,7 @@ export function HomeIntro() {
       </p>
 
       <p className="mt-2 break-keep text-xs leading-relaxed text-muted-foreground">
-        제주에서 무언가를 만드는 모든 과정에서 남게 되는 것들 — 농수산 부산물부터 카페 커피박,
+        제주에서 무언가를 만드는 모든 과정에서 남게 되는 것들: 농수산 부산물부터 카페 커피박,
         인쇄소 파지, 묵은 달력까지.
       </p>
 
