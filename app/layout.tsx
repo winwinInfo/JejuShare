@@ -3,16 +3,43 @@ import "@/frontend/styles/globals.css";
 import { SiteHeader } from "@/frontend/components/SiteHeader";
 import { SiteFooter } from "@/frontend/components/SiteFooter";
 
+const SITE_URL = "https://jejudogam.kr";
+const SITE_NAME = "제주 새활용 도감";
+const SITE_DESCRIPTION =
+  "제주의 버려지는 자원을 함께 발견하고, 기록하고, 다시 쓰는 사람들. 제주 미활용 농수산 부산물 정보 도감.";
+
 export const metadata: Metadata = {
-  title: "제주 새활용 도감",
-  description:
-    "제주의 버려지는 자원을 함께 발견하고, 기록하고, 다시 쓰는 사람들. 제주 미활용 농수산 부산물 정보 도감.",
+  metadataBase: new URL(SITE_URL),
+  title: SITE_NAME,
+  description: SITE_DESCRIPTION,
   icons: {
     icon: [
       { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
       { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
     ],
     apple: "/apple-touch-icon.png",
+  },
+  openGraph: {
+    type: "website",
+    locale: "ko_KR",
+    url: SITE_URL,
+    siteName: SITE_NAME,
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: SITE_NAME,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+    images: ["/og-image.png"],
   },
 };
 
