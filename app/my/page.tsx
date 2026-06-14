@@ -3,6 +3,7 @@ import { createSupabaseServer } from '@/backend/supabase'
 import { LogoutButton } from '@/frontend/components/LogoutButton'
 import { ProfileEditForm } from '@/frontend/components/ProfileEditForm'
 import { PostCard } from '@/frontend/components/PostCard'
+import { getMyPosts } from '@/backend/queries/posts'
 import { getLikedPosts } from '@/backend/queries/likes'
 import { getEmailedPosts } from '@/backend/queries/email'
 
@@ -12,8 +13,9 @@ export default async function MyPage() {
 
   if (!user) redirect('/login')
 
-  const [profile, likedPosts, emailedPosts] = await Promise.all([
+  const [profile, myPosts, likedPosts, emailedPosts] = await Promise.all([
     supabase.from('user').select('nickname, phone, bio, created_at').eq('id', user.id).single().then(r => r.data),
+    getMyPosts(),
     getLikedPosts(),
     getEmailedPosts(),
   ])
@@ -50,6 +52,22 @@ export default async function MyPage() {
             bio: profile?.bio ?? null,
           }}
         />
+
+        {/* 내가 작성한 글 */}
+        <div className="border border-border rounded-xl p-6">
+          <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-widest mb-4">
+            내가 작성한 글 <span className="text-foreground normal-case">({myPosts.length})</span>
+          </h2>
+          {myPosts.length === 0 ? (
+            <p className="text-sm text-muted-foreground">아직 작성한 게시글이 없습니다.</p>
+          ) : (
+            <div className="grid gap-3 sm:grid-cols-2">
+              {myPosts.map((post) => (
+                <PostCard key={post.id} post={post} />
+              ))}
+            </div>
+          )}
+        </div>
 
         {/* 좋아요한 글 */}
         <div className="border border-border rounded-xl p-6">
