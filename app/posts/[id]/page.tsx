@@ -6,12 +6,7 @@ import { getPostById } from '@/backend/queries/posts'
 import { getLikeStatus, getLikeCount } from '@/backend/queries/likes'
 import { getEmailSentStatus } from '@/backend/queries/email'
 import { PostActions } from '@/frontend/components/PostActions'
-
-const TYPE_LABEL = { offer: '있어요', request: '구해요' }
-const TYPE_STYLE = {
-  offer: 'bg-emerald-50 text-emerald-700',
-  request: 'bg-amber-50 text-amber-700',
-}
+import { PostTypeBadge } from '@/frontend/components/PostTypeBadge'
 
 export default async function PostDetailPage({
   params,
@@ -52,9 +47,7 @@ export default async function PostDetailPage({
       <article className="mt-6 space-y-6">
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${TYPE_STYLE[post.postType]}`}>
-              {TYPE_LABEL[post.postType]}
-            </span>
+            <PostTypeBadge type={post.postType} />
             <span className="text-xs text-muted-foreground">{post.region}</span>
           </div>
           <h1 className="text-2xl font-semibold tracking-tight">{post.title}</h1>

@@ -30,7 +30,7 @@ export function ProfileForm({ email }: { email: string }) {
 
       <div>
         <label className="block text-sm font-medium mb-1.5">
-          닉네임 <span className="text-red-500">*</span>
+          닉네임 <span className="text-destructive">*</span>
         </label>
         <input
           type="text"
@@ -44,7 +44,7 @@ export function ProfileForm({ email }: { email: string }) {
 
       <div>
         <label className="block text-sm font-medium mb-1.5">
-          전화번호 <span className="text-red-500">*</span>
+          전화번호 <span className="text-destructive">*</span>
         </label>
         <input
           type="tel"
@@ -71,7 +71,7 @@ export function ProfileForm({ email }: { email: string }) {
         </label>
       </div>
 
-      {error && <p className="text-sm text-red-500">{error}</p>}
+      {error && <p className="text-sm text-destructive">{error}</p>}
 
       <button
         type="submit"

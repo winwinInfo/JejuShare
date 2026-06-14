@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import type { Post, PostType } from '@/backend/types'
 import { PostCard } from '@/frontend/components/PostCard'
 
@@ -17,7 +18,7 @@ const FILTERS: {
   { key: 'request', label: '구해요', dot: 'bg-amber-500', active: 'bg-amber-600 text-white border-amber-600' },
 ]
 
-export function PostsFeed({ posts }: { posts: Post[] }) {
+export function PostsFeed({ posts, isLoggedIn }: { posts: Post[]; isLoggedIn: boolean }) {
   const [filter, setFilter] = useState<Filter>('all')
 
   const counts: Record<Filter, number> = {
@@ -40,7 +41,7 @@ export function PostsFeed({ posts }: { posts: Post[] }) {
               onClick={() => setFilter(key)}
               aria-pressed={isActive}
               className={[
-                'inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-sm transition-colors',
+                'inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm transition-colors',
                 isActive
                   ? active
                   : 'border-border bg-background text-muted-foreground hover:border-foreground/30 hover:text-foreground',
@@ -62,8 +63,20 @@ export function PostsFeed({ posts }: { posts: Post[] }) {
       </div>
 
       {visible.length === 0 ? (
-        <div className="py-24 text-center text-muted-foreground">
-          <p>{posts.length === 0 ? '아직 등록된 게시글이 없습니다.' : '해당하는 게시글이 없습니다.'}</p>
+        <div className="py-24 text-center">
+          {posts.length === 0 ? (
+            <div className="space-y-5">
+              <p className="text-muted-foreground">아직 등록된 기록이 없습니다.</p>
+              <Link
+                href={isLoggedIn ? '/posts/new' : '/login'}
+                className="inline-block rounded-xl bg-foreground px-4 py-2.5 text-sm font-medium text-background transition-opacity hover:opacity-90"
+              >
+                {isLoggedIn ? '첫 기록 남기기 →' : '로그인하고 기록 남기기 →'}
+              </Link>
+            </div>
+          ) : (
+            <p className="text-muted-foreground">해당하는 게시글이 없습니다.</p>
+          )}
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">

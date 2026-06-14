@@ -1,27 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import type { Post } from '@/backend/types'
-
-const TYPE_LABEL: Record<Post['postType'], string> = {
-  offer: '있어요',
-  request: '구해요',
-}
-
-const TYPE_STYLE: Record<Post['postType'], string> = {
-  offer: 'bg-emerald-50 text-emerald-700',
-  request: 'bg-amber-50 text-amber-700',
-}
-
-/** 한눈에 유형을 구분하기 위한 카드 좌측 테두리 색 (필터 칩 색과 동일) */
-const TYPE_BORDER: Record<Post['postType'], string> = {
-  offer: 'border-l-emerald-500',
-  request: 'border-l-amber-500',
-}
-
-const TYPE_DOT: Record<Post['postType'], string> = {
-  offer: 'bg-emerald-500',
-  request: 'bg-amber-500',
-}
+import { PostTypeBadge, TYPE_BORDER } from '@/frontend/components/PostTypeBadge'
 
 export function PostCard({ post }: { post: Post }) {
   const relativeDate = new Intl.RelativeTimeFormat('ko', { numeric: 'auto' })
@@ -45,6 +25,7 @@ export function PostCard({ post }: { post: Post }) {
             alt={post.title}
             width={400}
             height={300}
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
         ) : (
@@ -60,14 +41,11 @@ export function PostCard({ post }: { post: Post }) {
 
       <div className="flex flex-col gap-2 p-4">
         <div className="flex items-center gap-2">
-          <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full ${TYPE_STYLE[post.postType]}`}>
-            <span className={`size-1.5 rounded-full ${TYPE_DOT[post.postType]}`} />
-            {TYPE_LABEL[post.postType]}
-          </span>
+          <PostTypeBadge type={post.postType} />
           <span className="text-xs text-muted-foreground">{post.region}</span>
         </div>
 
-        <h3 className="text-sm font-medium leading-snug line-clamp-2 group-hover:text-foreground/80">
+        <h3 className="text-sm font-medium leading-snug line-clamp-2 group-hover:underline underline-offset-2">
           {post.title}
         </h3>
 

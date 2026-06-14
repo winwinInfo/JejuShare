@@ -165,6 +165,14 @@
   button, a, [role="button"], label[for], select, summary {
     cursor: pointer;
   }
+  /* 키보드 사용자용 포커스 표시 (WCAG 2.4.7) — 마우스 클릭에는 나타나지 않음 */
+  a:focus-visible,
+  button:focus-visible,
+  [role="button"]:focus-visible,
+  summary:focus-visible {
+    outline: 2px solid var(--foreground);
+    outline-offset: 2px;
+  }
   body {
     background-color: var(--background);
     color: var(--foreground);

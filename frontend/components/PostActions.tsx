@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { toggleLike } from '@/backend/actions/like'
 import { sendContactEmail } from '@/backend/actions/email'
 
@@ -32,6 +32,29 @@ export function PostActions({
   const [emailLoading, setEmailLoading] = useState(false)
   const [emailError, setEmailError] = useState<string | null>(null)
   const [emailDone, setEmailDone] = useState(emailSent)
+  const [showToast, setShowToast] = useState(false)
+
+  // 모달 열림 동안: ESC로 닫기 + 배경 스크롤 잠금
+  useEffect(() => {
+    if (!showEmailModal) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setShowEmailModal(false)
+    }
+    document.addEventListener('keydown', onKey)
+    const prevOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.removeEventListener('keydown', onKey)
+      document.body.style.overflow = prevOverflow
+    }
+  }, [showEmailModal])
+
+  // 전송 성공 토스트 자동 사라짐
+  useEffect(() => {
+    if (!showToast) return
+    const t = setTimeout(() => setShowToast(false), 3000)
+    return () => clearTimeout(t)
+  }, [showToast])
 
   async function handleLike() {
     if (!isLoggedIn) { window.location.href = '/login'; return }
@@ -60,6 +83,7 @@ export function PostActions({
     } else {
       setEmailDone(true)
       setShowEmailModal(false)
+      setShowToast(true)
     }
   }
 
@@ -103,16 +127,28 @@ export function PostActions({
 
       {/* 이메일 작성 모달 */}
       {showEmailModal && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-foreground/30 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-2xl bg-card border border-border p-6 space-y-4">
-            <h2 className="text-base font-semibold">게시글 작성자에게 이메일 보내기</h2>
+        <div
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-foreground/30 backdrop-blur-sm"
+          onClick={() => setShowEmailModal(false)}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="email-modal-title"
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-md rounded-2xl bg-card border border-border p-6 space-y-4"
+          >
+            <h2 id="email-modal-title" className="text-base font-semibold">게시글 작성자에게 이메일 보내기</h2>
             <p className="text-xs text-muted-foreground">보낸 후에는 수정할 수 없으며, 게시글당 1회만 가능합니다.</p>
             <form onSubmit={handleEmailSend} className="space-y-3">
+              <label htmlFor="email-message" className="sr-only">보낼 메시지</label>
               <textarea
+                id="email-message"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 rows={5}
                 required
+                autoFocus
                 placeholder="어떤 자원이 필요하신지, 어떻게 활용하실 예정인지 적어주세요."
                 className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-foreground/20 resize-none"
               />
@@ -135,6 +171,17 @@ export function PostActions({
               </div>
             </form>
           </div>
+        </div>
+      )}
+
+      {/* 전송 성공 토스트 */}
+      {showToast && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-full bg-foreground px-4 py-2.5 text-sm text-background shadow-lg"
+        >
+          작성자에게 이메일을 보냈어요 ✓
         </div>
       )}
     </>

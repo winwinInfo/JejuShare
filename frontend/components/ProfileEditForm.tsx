@@ -71,7 +71,7 @@ export function ProfileEditForm({ initial }: Props) {
       <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-widest">프로필 수정</h2>
 
       <div>
-        <label className="block text-sm font-medium mb-1.5">닉네임 <span className="text-red-500">*</span></label>
+        <label className="block text-sm font-medium mb-1.5">닉네임 <span className="text-destructive">*</span></label>
         <input
           type="text"
           value={form.displayName}
@@ -82,7 +82,7 @@ export function ProfileEditForm({ initial }: Props) {
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-1.5">연락처 <span className="text-red-500">*</span></label>
+        <label className="block text-sm font-medium mb-1.5">연락처 <span className="text-destructive">*</span></label>
         <input
           type="tel"
           value={form.phone}
@@ -104,7 +104,7 @@ export function ProfileEditForm({ initial }: Props) {
         />
       </div>
 
-      {error && <p className="text-sm text-red-500">{error}</p>}
+      {error && <p className="text-sm text-destructive">{error}</p>}
 
       <div className="flex gap-2 pt-1">
         <button
