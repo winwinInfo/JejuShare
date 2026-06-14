@@ -20,8 +20,8 @@ export function HomeIntro() {
   return (
     <section className="mb-8 rounded-2xl border border-border bg-card p-6 sm:p-7">
       <p className="break-keep text-sm leading-relaxed text-foreground/90">
-        <span className="font-medium">제주 새활용 도감</span>은 제주에서 버려지는 농수산
-        부산물을 기록하고,{' '}
+        <span className="font-medium">제주 새활용 도감</span>은 제주에서 버려지는 온갖
+        자원을 기록하고,{' '}
         <span className="whitespace-nowrap">
           <span className="inline-block size-1.5 translate-y-px rounded-full bg-emerald-500" />{' '}
           있어요
@@ -32,6 +32,10 @@ export function HomeIntro() {
           구해요
         </span>
         (자원 수요자)를 잇는 공간입니다.
+      </p>
+
+      <p className="mt-2 break-keep text-xs leading-relaxed text-muted-foreground">
+        농수산 부산물부터 카페 커피박, 인쇄소 파지, 묵은 달력까지 — 다시 쓸 수 있는 건 무엇이든.
       </p>
 
       <ol className="mt-6 grid gap-5 sm:grid-cols-3">

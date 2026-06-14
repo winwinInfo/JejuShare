@@ -6,7 +6,7 @@ import { SiteFooter } from "@/frontend/components/SiteFooter";
 const SITE_URL = "https://jejudogam.kr";
 const SITE_NAME = "제주 새활용 도감";
 const SITE_DESCRIPTION =
-  "제주의 버려지는 자원을 함께 발견하고, 기록하고, 다시 쓰는 사람들. 제주 미활용 농수산 부산물 정보 도감.";
+  "제주의 버려지는 자원을 함께 발견하고, 기록하고, 다시 쓰는 사람들. 농수산 부산물부터 카페 커피박·인쇄소 파지까지, 제주 미활용 자원 정보 도감.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
