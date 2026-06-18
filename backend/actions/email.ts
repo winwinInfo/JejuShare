@@ -51,7 +51,7 @@ export async function sendContactEmail(
   const authorNickname = postAuthor?.nickname ?? '작성자'
 
   const { error: sendError } = await resend.emails.send({
-    from: 'onboarding@resend.dev',
+    from: '제주 새활용 도감 <noreply@jeju-upcycle-dogam.kr>',
     to: contactEmail,
     subject: `[제주 새활용 도감] "${post.title}" 게시글에 연락이 왔어요`,
     html: `
