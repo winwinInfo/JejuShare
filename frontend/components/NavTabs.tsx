@@ -4,7 +4,8 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
 const tabs = [
-  { label: '도감', href: '/' },
+  { label: '게시물', href: '/' },
+  { label: '도감', href: '/dogam' },
   { label: '새활용 늬우스', href: '/history' },
 ]
 
@@ -21,7 +22,7 @@ export function NavTabs() {
               key={href}
               href={href}
               className={[
-                'inline-block py-2.5 pr-6 text-sm border-b-2 transition-colors',
+                'inline-block px-5 py-2.5 text-sm text-center border-b-2 transition-colors',
                 isActive
                   ? 'border-foreground text-foreground font-medium'
                   : 'border-transparent text-muted-foreground hover:text-foreground',
