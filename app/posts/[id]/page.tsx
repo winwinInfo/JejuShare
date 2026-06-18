@@ -23,14 +23,16 @@ export default async function PostDetailPage({
 
   const isOwner = user?.id === post.author.id
 
-  const [liked, likeCount, emailSent, postRow] = await Promise.all([
+  const [liked, likeCount, emailSent, postRow, userProfile] = await Promise.all([
     getLikeStatus(post.id),
     getLikeCount(post.id),
     getEmailSentStatus(post.id),
     supabase.from('posts').select('contact_email').eq('id', post.id).single(),
+    user ? supabase.from('user').select('email').eq('id', user.id).single() : Promise.resolve({ data: null }),
   ])
 
   const hasContactEmail = !!postRow.data?.contact_email
+  const userEmail = userProfile.data?.email ?? user?.email ?? ''
 
   const dateLabel = new Date(post.createdAt).toLocaleDateString('ko-KR', {
     year: 'numeric', month: 'long', day: 'numeric',
@@ -107,6 +109,7 @@ export default async function PostDetailPage({
             hasContactEmail={hasContactEmail}
             isOwner={isOwner}
             isLoggedIn={!!user}
+            userEmail={userEmail}
           />
         )}
       </article>

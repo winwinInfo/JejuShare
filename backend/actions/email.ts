@@ -10,6 +10,7 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 export async function sendContactEmail(
   postId: number,
   senderMessage: string,
+  replyEmail?: string,
 ): Promise<ActionResult> {
   const supabase = await createSupabaseServer()
   const { data: { user } } = await supabase.auth.getUser()
@@ -45,7 +46,7 @@ export async function sendContactEmail(
     .single()
 
   const senderNickname = senderProfile?.nickname ?? '도감 이용자'
-  const senderEmail = senderProfile?.email ?? user.email ?? ''
+  const senderEmail = replyEmail || senderProfile?.email || user.email || ''
 
   const postAuthor = Array.isArray(post.user) ? post.user[0] : post.user
   const authorNickname = postAuthor?.nickname ?? '작성자'
@@ -53,6 +54,7 @@ export async function sendContactEmail(
   const { error: sendError } = await resend.emails.send({
     from: '제주 새활용 도감 <noreply@jeju-upcycle-dogam.kr>',
     to: contactEmail,
+    replyTo: senderEmail,
     subject: `[제주 새활용 도감] "${post.title}" 게시글에 연락이 왔어요`,
     html: `
       <div style="font-family: sans-serif; max-width: 560px; margin: 0 auto; color: #1c1a17;">

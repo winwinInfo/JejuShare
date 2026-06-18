@@ -12,6 +12,7 @@ interface PostActionsProps {
   hasContactEmail: boolean
   isOwner: boolean
   isLoggedIn: boolean
+  userEmail: string
 }
 
 export function PostActions({
@@ -22,6 +23,7 @@ export function PostActions({
   hasContactEmail,
   isOwner,
   isLoggedIn,
+  userEmail,
 }: PostActionsProps) {
   const [liked, setLiked] = useState(initialLiked)
   const [likeCount, setLikeCount] = useState(initialLikeCount)
@@ -29,6 +31,7 @@ export function PostActions({
 
   const [showEmailModal, setShowEmailModal] = useState(false)
   const [message, setMessage] = useState('')
+  const [replyEmail, setReplyEmail] = useState(userEmail)
   const [emailLoading, setEmailLoading] = useState(false)
   const [emailError, setEmailError] = useState<string | null>(null)
   const [emailDone, setEmailDone] = useState(emailSent)
@@ -76,7 +79,7 @@ export function PostActions({
     if (!message.trim()) return
     setEmailLoading(true)
     setEmailError(null)
-    const result = await sendContactEmail(postId, message.trim())
+    const result = await sendContactEmail(postId, message.trim(), replyEmail.trim())
     setEmailLoading(false)
     if (!result.ok) {
       setEmailError(result.error)
@@ -141,6 +144,17 @@ export function PostActions({
             <h2 id="email-modal-title" className="text-base font-semibold">게시글 작성자에게 이메일 보내기</h2>
             <p className="text-xs text-muted-foreground">보낸 후에는 수정할 수 없으며, 게시글당 1회만 가능합니다.</p>
             <form onSubmit={handleEmailSend} className="space-y-3">
+              <div className="space-y-1">
+                <label htmlFor="reply-email" className="text-xs text-muted-foreground">회신 받을 이메일</label>
+                <input
+                  id="reply-email"
+                  type="email"
+                  value={replyEmail}
+                  onChange={(e) => setReplyEmail(e.target.value)}
+                  required
+                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-foreground/20"
+                />
+              </div>
               <label htmlFor="email-message" className="sr-only">보낼 메시지</label>
               <textarea
                 id="email-message"
