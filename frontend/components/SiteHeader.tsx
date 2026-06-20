@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import { createSupabaseServer } from '@/backend/supabase'
 import { getServerUser } from '@/backend/queries/auth'
-import { NavTabs } from '@/frontend/components/NavTabs'
 
 export async function SiteHeader() {
   const user = await getServerUser()
@@ -55,7 +54,6 @@ export async function SiteHeader() {
           다시 쓰는 사람들
         </p>
       </div>
-      <NavTabs />
     </header>
   )
 }

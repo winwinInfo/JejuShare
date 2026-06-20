@@ -29,7 +29,7 @@ export function StoryLayout({
   return (
     <main className="mx-auto max-w-2xl px-5 py-10">
       <Link
-        href="/history"
+        href="/?tab=news"
         className="text-xs text-muted-foreground hover:text-foreground transition-colors"
       >
         ← 새활용 늬우스로
