@@ -1,11 +1,12 @@
 import { createSupabaseServer } from '@/backend/supabase'
+import { getServerUser } from '@/backend/queries/auth'
 import type { Post } from '@/backend/types'
 
 export async function getEmailedPosts(): Promise<Post[]> {
-  const supabase = await createSupabaseServer()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getServerUser()
   if (!user) return []
 
+  const supabase = await createSupabaseServer()
   const { data, error } = await supabase
     .from('email_contacts')
     .select('post_id, posts(id, post_type, title, body, region, image_url, amount, timing, status, created_at, user(id, nickname))')
@@ -40,10 +41,10 @@ export async function getEmailedPosts(): Promise<Post[]> {
 }
 
 export async function getEmailSentStatus(postId: number): Promise<boolean> {
-  const supabase = await createSupabaseServer()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getServerUser()
   if (!user) return false
 
+  const supabase = await createSupabaseServer()
   const { data } = await supabase
     .from('email_contacts')
     .select('id')

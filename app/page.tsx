@@ -1,12 +1,10 @@
 import { getPosts } from '@/backend/queries/posts'
-import { createSupabaseServer } from '@/backend/supabase'
+import { getServerUser } from '@/backend/queries/auth'
 import { PostsFeed } from '@/frontend/components/PostsFeed'
 import { HomeIntro } from '@/frontend/components/HomeIntro'
 
 export default async function Home() {
-  const supabase = await createSupabaseServer()
-  const { data: { user } } = await supabase.auth.getUser()
-  const posts = await getPosts()
+  const [user, posts] = await Promise.all([getServerUser(), getPosts()])
 
   return (
     <main className="mx-auto max-w-6xl px-5 py-8">

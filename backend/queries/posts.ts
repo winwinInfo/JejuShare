@@ -1,5 +1,6 @@
 import { createSupabaseServer } from '@/backend/supabase'
 import { supabasePublic } from '@/backend/supabase'
+import { getServerUser } from '@/backend/queries/auth'
 import type { Post } from '@/backend/types'
 
 function toPost(row: {
@@ -67,10 +68,10 @@ export async function getPostById(id: number): Promise<Post | null> {
 
 /** 로그인 유저 본인 게시글 목록 */
 export async function getMyPosts(): Promise<Post[]> {
-  const supabase = await createSupabaseServer()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getServerUser()
   if (!user) return []
 
+  const supabase = await createSupabaseServer()
   const { data, error } = await supabase
     .from('posts')
     .select('id, post_type, title, body, region, image_url, amount, timing, status, created_at, user(id, nickname)')

@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createSupabaseServer } from '@/backend/supabase'
+import { getServerUser } from '@/backend/queries/auth'
 import { LogoutButton } from '@/frontend/components/LogoutButton'
 import { ProfileEditForm } from '@/frontend/components/ProfileEditForm'
 import { PostCard } from '@/frontend/components/PostCard'
@@ -8,11 +9,10 @@ import { getLikedPosts } from '@/backend/queries/likes'
 import { getEmailedPosts } from '@/backend/queries/email'
 
 export default async function MyPage() {
-  const supabase = await createSupabaseServer()
-  const { data: { user } } = await supabase.auth.getUser()
-
+  const user = await getServerUser()
   if (!user) redirect('/login')
 
+  const supabase = await createSupabaseServer()
   const [profile, myPosts, likedPosts, emailedPosts] = await Promise.all([
     supabase.from('user').select('nickname, phone, bio, created_at').eq('id', user.id).single().then(r => r.data),
     getMyPosts(),

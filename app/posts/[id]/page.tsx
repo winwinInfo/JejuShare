@@ -3,6 +3,7 @@ import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { createSupabaseServer } from '@/backend/supabase'
 import { getPostById } from '@/backend/queries/posts'
+import { getServerUser } from '@/backend/queries/auth'
 import { getLikeStatus, getLikeCount } from '@/backend/queries/likes'
 import { getEmailSentStatus } from '@/backend/queries/email'
 import { PostActions } from '@/frontend/components/PostActions'
@@ -15,21 +16,24 @@ export default async function PostDetailPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const post = await getPostById(Number(id))
-  if (!post) notFound()
+  const postId = Number(id)
 
   const supabase = await createSupabaseServer()
-  const { data: { user } } = await supabase.auth.getUser()
+  // getServerUser는 SiteHeader와 캐시를 공유하므로 사실상 추가 비용 없음
+  const user = await getServerUser()
 
-  const isOwner = user?.id === post.author.id
-
-  const [liked, likeCount, emailSent, postRow, userProfile] = await Promise.all([
-    getLikeStatus(post.id),
-    getLikeCount(post.id),
-    getEmailSentStatus(post.id),
-    supabase.from('posts').select('contact_email').eq('id', post.id).single(),
+  const [post, liked, likeCount, emailSent, postRow, userProfile] = await Promise.all([
+    getPostById(postId),
+    getLikeStatus(postId),
+    getLikeCount(postId),
+    getEmailSentStatus(postId),
+    supabase.from('posts').select('contact_email').eq('id', postId).single(),
     user ? supabase.from('user').select('email').eq('id', user.id).single() : Promise.resolve({ data: null }),
   ])
+
+  if (!post) notFound()
+
+  const isOwner = user?.id === post.author.id
 
   const hasContactEmail = !!postRow.data?.contact_email
   const userEmail = userProfile.data?.email ?? user?.email ?? ''

@@ -1,13 +1,14 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createSupabaseServer } from '@/backend/supabase'
+import { getServerUser } from '@/backend/queries/auth'
 import { PostForm } from '@/frontend/components/PostForm'
 
 export default async function PostNewPage() {
-  const supabase = await createSupabaseServer()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getServerUser()
   if (!user) redirect('/login')
 
+  const supabase = await createSupabaseServer()
   const { data: profile } = await supabase
     .from('user')
     .select('email')

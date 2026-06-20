@@ -1,13 +1,14 @@
 import Link from 'next/link'
 import { createSupabaseServer } from '@/backend/supabase'
+import { getServerUser } from '@/backend/queries/auth'
 import { NavTabs } from '@/frontend/components/NavTabs'
 
 export async function SiteHeader() {
-  const supabase = await createSupabaseServer()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getServerUser()
 
   let displayName: string | null = null
   if (user) {
+    const supabase = await createSupabaseServer()
     const { data: profile } = await supabase
       .from('user')
       .select('nickname')

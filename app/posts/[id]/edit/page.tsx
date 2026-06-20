@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { redirect, notFound } from 'next/navigation'
 import { createSupabaseServer } from '@/backend/supabase'
 import { getPostById } from '@/backend/queries/posts'
+import { getServerUser } from '@/backend/queries/auth'
 import { PostForm } from '@/frontend/components/PostForm'
 
 export default async function PostEditPage({
@@ -11,8 +12,7 @@ export default async function PostEditPage({
 }) {
   const { id } = await params
 
-  const supabase = await createSupabaseServer()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getServerUser()
   if (!user) redirect('/login')
 
   const post = await getPostById(Number(id))
@@ -20,6 +20,7 @@ export default async function PostEditPage({
   // 작성자 본인만 수정 가능
   if (post.author.id !== user.id) redirect(`/posts/${id}`)
 
+  const supabase = await createSupabaseServer()
   const { data: row } = await supabase
     .from('posts')
     .select('contact_email')

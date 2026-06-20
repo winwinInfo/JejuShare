@@ -1,5 +1,13 @@
+import { cache } from 'react'
 import { createSupabaseServer } from '@/backend/supabase'
 import { NextRequest, NextResponse } from 'next/server'
+
+// request 스코프 안에서 getUser() 네트워크 호출을 1번으로 제한
+export const getServerUser = cache(async () => {
+  const supabase = await createSupabaseServer()
+  const { data: { user } } = await supabase.auth.getUser()
+  return user
+})
 
 export async function handleAuthCallback(request: NextRequest): Promise<NextResponse> {
   const { searchParams, origin } = new URL(request.url)
