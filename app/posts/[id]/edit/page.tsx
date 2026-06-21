@@ -33,12 +33,12 @@ export default async function PostEditPage({
         href={`/posts/${post.id}`}
         className="font-mono text-xs text-muted-foreground hover:text-foreground"
       >
-        ← 돌아가기
+        돌아가기
       </Link>
 
       <h1 className="mt-6 text-xl font-semibold tracking-tight">게시글 수정</h1>
       <p className="mt-1 mb-8 text-sm text-muted-foreground">
-        올린 기록을 고칠 수 있습니다.
+        게시물을 수정할 수 있습니다.
       </p>
 
       <PostForm

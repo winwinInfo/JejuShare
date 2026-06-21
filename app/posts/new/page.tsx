@@ -1,6 +1,5 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { createSupabaseServer } from '@/backend/supabase'
 import { getServerUser } from '@/backend/queries/auth'
 import { PostForm } from '@/frontend/components/PostForm'
 
@@ -8,14 +7,9 @@ export default async function PostNewPage() {
   const user = await getServerUser()
   if (!user) redirect('/login')
 
-  const supabase = await createSupabaseServer()
-  const { data: profile } = await supabase
-    .from('user')
-    .select('email')
-    .eq('id', user.id)
-    .single()
-
-  const defaultEmail = profile?.email ?? user.email ?? ''
+  // user.email은 getServerUser가 이미 들고 옴(카카오에서 수집).
+  // 별도 user 테이블 조회는 같은 값을 위한 중복 왕복이라 제거.
+  const defaultEmail = user.email ?? ''
 
   return (
     <main className="mx-auto max-w-lg px-5 py-8">
