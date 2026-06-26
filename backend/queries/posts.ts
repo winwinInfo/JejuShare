@@ -66,6 +66,54 @@ export async function getPostById(id: number): Promise<Post | null> {
   return toPost(data)
 }
 
+/** 상세 페이지가 한 화면에 필요로 하는 모든 데이터 */
+export type PostDetail = {
+  post: Post
+  likeCount: number
+  liked: boolean
+  emailSent: boolean
+  hasContactEmail: boolean
+}
+
+/**
+ * 게시글 상세 페이지용 단일 조회.
+ * posts 한 row에 author(user), likes, email_contacts, contact_email을 임베드해
+ * Supabase 왕복 1회로 본문·좋아요·이메일 발송 여부를 모두 가져온다.
+ * (viewer 본인 email은 JWT(getClaims)에 있으므로 여기서 조회하지 않음)
+ *
+ * likes/email_contacts/contact_email은 인증 클라이언트의 RLS를 그대로 따른다.
+ * likeCount는 기존 getLikeCount(동일 인증 클라이언트의 count)와 같은 가시성으로 집계된다.
+ */
+export async function getPostDetail(
+  id: number,
+  viewerId: string | null,
+): Promise<PostDetail | null> {
+  const supabase = await createSupabaseServer()
+  const { data, error } = await supabase
+    .from('posts')
+    .select(
+      'id, post_type, title, body, region, image_url, amount, timing, status, created_at, contact_email, user(id, nickname), likes(user_id), email_contacts(sender_id)',
+    )
+    .eq('id', id)
+    .single()
+
+  if (error || !data) {
+    if (error) console.error('getPostDetail error:', error.message)
+    return null
+  }
+
+  const likes = data.likes ?? []
+  const emailContacts = data.email_contacts ?? []
+
+  return {
+    post: toPost(data),
+    likeCount: likes.length,
+    liked: viewerId ? likes.some((l) => l.user_id === viewerId) : false,
+    emailSent: viewerId ? emailContacts.some((e) => e.sender_id === viewerId) : false,
+    hasContactEmail: !!data.contact_email,
+  }
+}
+
 /** 로그인 유저 본인 게시글 목록 */
 export async function getMyPosts(): Promise<Post[]> {
   const user = await getServerUser()

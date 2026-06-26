@@ -1,11 +1,8 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
-import { createSupabaseServer } from '@/backend/supabase'
-import { getPostById } from '@/backend/queries/posts'
+import { getPostDetail } from '@/backend/queries/posts'
 import { getServerUser } from '@/backend/queries/auth'
-import { getLikeStatus, getLikeCount } from '@/backend/queries/likes'
-import { getEmailSentStatus } from '@/backend/queries/email'
 import { PostActions } from '@/frontend/components/PostActions'
 import { PostOwnerActions } from '@/frontend/components/PostOwnerActions'
 import { PostTypeBadge } from '@/frontend/components/PostTypeBadge'
@@ -18,25 +15,18 @@ export default async function PostDetailPage({
   const { id } = await params
   const postId = Number(id)
 
-  const supabase = await createSupabaseServer()
-  // getServerUser는 SiteHeader와 캐시를 공유하므로 사실상 추가 비용 없음
+  // getServerUser는 JWT 로컬 검증(네트워크 0). 실제 데이터는 getPostDetail이 왕복 1회로 가져온다.
   const user = await getServerUser()
+  const detail = await getPostDetail(postId, user?.id ?? null)
 
-  const [post, liked, likeCount, emailSent, postRow, userProfile] = await Promise.all([
-    getPostById(postId),
-    getLikeStatus(postId),
-    getLikeCount(postId),
-    getEmailSentStatus(postId),
-    supabase.from('posts').select('contact_email').eq('id', postId).single(),
-    user ? supabase.from('user').select('email').eq('id', user.id).single() : Promise.resolve({ data: null }),
-  ])
+  if (!detail) notFound()
 
-  if (!post) notFound()
+  const { post, liked, likeCount, emailSent, hasContactEmail } = detail
 
   const isOwner = user?.id === post.author.id
 
-  const hasContactEmail = !!postRow.data?.contact_email
-  const userEmail = userProfile.data?.email ?? user?.email ?? ''
+  // 답장 이메일 프리필용. JWT 클레임의 email로 충분(DB 재조회 불필요).
+  const userEmail = user?.email ?? ''
 
   const dateLabel = new Date(post.createdAt).toLocaleDateString('ko-KR', {
     year: 'numeric', month: 'long', day: 'numeric',
