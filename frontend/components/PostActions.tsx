@@ -1,11 +1,14 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { toggleLike } from '@/backend/actions/like'
 import { sendContactEmail } from '@/backend/actions/email'
+import { getSupabaseBrowser } from '@/frontend/lib/supabase-browser'
 
 interface PostActionsProps {
   postId: number
+  authorId: string
   initialLiked: boolean
   initialLikeCount: number
   emailSent: boolean
@@ -17,6 +20,7 @@ interface PostActionsProps {
 
 export function PostActions({
   postId,
+  authorId,
   initialLiked,
   initialLikeCount,
   emailSent,
@@ -25,6 +29,9 @@ export function PostActions({
   isLoggedIn,
   userEmail,
 }: PostActionsProps) {
+  const router = useRouter()
+  const [chatLoading, setChatLoading] = useState(false)
+  const [chatError, setChatError] = useState<string | null>(null)
   const [liked, setLiked] = useState(initialLiked)
   const [likeCount, setLikeCount] = useState(initialLikeCount)
   const [likeLoading, setLikeLoading] = useState(false)
@@ -74,6 +81,28 @@ export function PostActions({
     setLikeLoading(false)
   }
 
+  async function handleChat() {
+    if (!isLoggedIn) { window.location.href = '/login'; return }
+    if (chatLoading) return
+    setChatLoading(true)
+    setChatError(null)
+    const supabase = getSupabaseBrowser()
+    // 기존 대화방이 있으면 그쪽으로, 없으면 작성 화면으로 (빈 방은 만들지 않음)
+    const { data, error } = await supabase.rpc('find_conversation', {
+      other_id: authorId,
+    })
+    if (error) {
+      setChatLoading(false)
+      setChatError(
+        error.message === 'blocked'
+          ? '차단 관계에서는 대화할 수 없습니다.'
+          : '대화를 시작할 수 없습니다.',
+      )
+      return
+    }
+    router.push(data == null ? `/chat/new?to=${authorId}` : `/chat/${data}`)
+  }
+
   async function handleEmailSend(e: React.FormEvent) {
     e.preventDefault()
     if (!message.trim()) return
@@ -94,7 +123,7 @@ export function PostActions({
 
   return (
     <>
-      <div className="flex items-center gap-3 pt-4">
+      <div className="flex items-center gap-2 pt-4">
         {/* 좋아요 하트 버튼 */}
         <button
           onClick={handleLike}
@@ -113,6 +142,23 @@ export function PostActions({
           <span>{likeCount}</span>
         </button>
 
+        {/* 채팅(말풍선) 버튼 */}
+        <button
+          onClick={handleChat}
+          disabled={chatLoading}
+          className="flex items-center justify-center rounded-xl border border-border px-4 py-3 text-muted-foreground hover:border-foreground/30 hover:text-foreground transition-colors disabled:opacity-50"
+          aria-label="대화하기"
+          title="대화하기"
+        >
+          <svg
+            width="18" height="18" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" strokeWidth="1.8"
+            strokeLinecap="round" strokeLinejoin="round"
+          >
+            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+          </svg>
+        </button>
+
         {/* 이메일 보내기 버튼 */}
         {hasContactEmail && (
           <button
@@ -127,6 +173,7 @@ export function PostActions({
           </button>
         )}
       </div>
+      {chatError && <p className="mt-2 text-xs text-destructive">{chatError}</p>}
 
       {/* 이메일 작성 모달 */}
       {showEmailModal && (

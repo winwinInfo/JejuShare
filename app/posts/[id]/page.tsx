@@ -97,6 +97,7 @@ export default async function PostDetailPage({
         ) : (
           <PostActions
             postId={post.id}
+            authorId={post.author.id}
             initialLiked={liked}
             initialLikeCount={likeCount}
             emailSent={emailSent}

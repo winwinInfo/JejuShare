@@ -85,6 +85,11 @@
 - created_at
 - (unique: blocker_id + blocked_id)
 
+### 6. conversations / messages (채팅 — 1:1 DM)
+- **conversations**: id (PK), user_a/user_b (user FK, `user_a < user_b` 정렬로 쌍당 1개), last_message_at, created_at. (unique: user_a + user_b)
+- **messages**: id (PK), conversation_id (FK), sender_id (user FK), body, read_at(nullable), created_at.
+- 메시지는 Postgres에 영속, 실시간 도착은 **Supabase Realtime(WebSocket)** 구독. 별도 웹소켓 서버 없음.
+
 ## 매칭 흐름 (핵심 명세)
 
 ### 단계별 흐름
@@ -123,6 +128,16 @@
 3. 차단(blocks) 관계인 사용자끼리는 서로의 매칭 신청 자체가 불가능.
 4. 신고 3건 누적 시 admin 검토 대기열 자동 진입.
 
+## 채팅 (1:1 DM)
+
+- **목적:** 프로필/게시글에서 작성자에게 바로 말을 거는 1:1 실시간 대화. 매칭 이력 불필요(아무 사용자에게나 가능).
+- **진입:** 게시글 상세의 "대화하기" → `get_or_create_conversation` RPC로 대화방 생성/조회 후 `/chat/[id]` 이동. 대화 목록은 `/chat`.
+- **보안:**
+  - 대화 당사자 2명만 conversations/messages 를 SELECT/INSERT (RLS).
+  - **차단(blocks) 관계면 대화 시작·전송 모두 불가** (RPC와 messages_insert 정책 양쪽에서 차단).
+  - **채팅은 대화만 한다. 연락처(phone/email) 공개 규칙은 기존대로 매칭 `accepted` 에만 의존 — 채팅이 생겨도 연락처 노출 규칙은 안 바뀐다.**
+- **보관기간(TODO):** 채팅 로그도 개인정보. 명시적 보관기간 정책(예: 마지막 메시지 후 1년 자동 삭제, `pg_cron`) 도입 필요 + 이용약관 반영. 현재는 무기한 보존.
+
 ## 메인 페이지 피드
 
 카드 1장:
@@ -147,13 +162,14 @@
 - "이용자가 등록한 게시글 정보는 사업 종료 후 공공 목적의 자료로 활용·공개될 수 있음"
 - "이용자의 개인 식별 정보(연락처·이메일·매칭 이력)는 운영 주체인 주식회사 제주시트러스랩스가 별도 보관·관리하며, 공공 결과물 이관 대상에 포함되지 않음"
 - "부적절한 매칭 행위 발생 시 신고 가능하며, 누적 신고 시 이용 제한될 수 있음"
+- "이용자 간 채팅(1:1 대화) 내용은 서비스 제공을 위해 저장되며, 보관기간 정책에 따라 일정 기간 후 삭제될 수 있음"
 
 ## 절대 하지 말 것
 
 1. 매칭 `accepted` 이전에 연락처 노출 금지
 2. "나눔/공유 플랫폼" 같은 행정 카피 금지
 3. 지도 시각화 금지
-4. 결제·실시간 채팅 금지
+4. 결제 기능 금지
 5. 비밀번호 로그인 금지
 6. 외부 페이지에 매칭 당사자 신원 노출 금지 (숫자만)
 
@@ -161,8 +177,10 @@
 
 - Next.js + TypeScript + Vercel
 - 인증·DB: **Supabase (Auth + Postgres + RLS)**
+- 실시간 채팅: **Supabase Realtime** (별도 웹소켓 서버 없음)
 - 스타일: Tailwind + shadcn/ui
 - 이메일 발송 (매칭 알림): Resend 또는 Supabase 기본
+- DB 스키마 관리: **코드(SQL) 기반** — `supabase/migrations/` + `supabase/scripts/run-sql.mjs` (대시보드 직접 수정 금지). 자세한 건 `supabase/README.md`.
 
 ## 푸터 필수 문구
 

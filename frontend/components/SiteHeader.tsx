@@ -37,6 +37,9 @@ export async function SiteHeader() {
                 >
                   글 올리기
                 </Link>
+                <Link href="/chat" className="shrink-0 text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  대화
+                </Link>
                 <Link href="/my" className="max-w-[34vw] truncate text-sm text-muted-foreground hover:text-foreground transition-colors sm:max-w-none">
                   {displayName ?? '마이페이지'}
                 </Link>
