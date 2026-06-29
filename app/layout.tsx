@@ -27,6 +27,7 @@ export const metadata: Metadata = {
   title: SITE_NAME,
   description: SITE_DESCRIPTION,
   verification: {
+    google: "01D4SgQ0LSL4bLadiC3ixJ6O-tyelHR5YRekfQdQq0Q",
     other: {
       "naver-site-verification": "1da1f4cce655f479e790ab5e8aa089d9cb45e439",
     },
