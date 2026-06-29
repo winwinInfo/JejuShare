@@ -4,9 +4,7 @@ export function SiteFooter() {
       <div className="mx-auto max-w-6xl px-5 py-10">
         <p className="break-keep text-xs leading-relaxed text-muted-foreground xl:whitespace-nowrap">
           운영: 주식회사 제주시트러스랩스 · 본 프로젝트는 2026 제주생활실험
-          사업의 일환으로 진행되며, 부산물 정보 및 활용 아이디어 데이터는
-          제주특별자치도 소통협력센터에 귀속되어 공공누리 제2유형으로
-          공개됩니다.
+          사업의 일환으로 진행됩니다.
         </p>
         <div className="mt-6 space-y-0.5 text-xs leading-relaxed text-muted-foreground">
           <p>주식회사 제주시트러스랩스 · 대표이사 이창현</p>

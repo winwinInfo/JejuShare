@@ -65,8 +65,7 @@ export function ProfileForm({ email }: { email: string }) {
           className="mt-0.5 shrink-0"
         />
         <label htmlFor="terms" className="text-sm text-muted-foreground leading-relaxed">
-          매칭 수락 시 전화번호·이메일·발생처 상세주소가 상대방에게 공개되며,
-          등록 정보는 사업 종료 시 제주특별자치도 소통협력센터에 귀속됩니다.{' '}
+          매칭 수락 시 전화번호·이메일·발생처 상세주소가 상대방에게 공개됩니다.{' '}
           <span className="text-foreground font-medium">이용약관에 동의합니다.</span>
         </label>
       </div>
