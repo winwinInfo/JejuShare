@@ -26,6 +26,11 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: SITE_NAME,
   description: SITE_DESCRIPTION,
+  verification: {
+    other: {
+      "naver-site-verification": "1da1f4cce655f479e790ab5e8aa089d9cb45e439",
+    },
+  },
   icons: {
     icon: [
       { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
