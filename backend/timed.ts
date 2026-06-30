@@ -14,7 +14,8 @@
  *
  * 디버깅용 임시 계측. 원인 확인 후 제거 가능.
  */
-export async function timed<T>(label: string, fn: () => Promise<T>): Promise<T> {
+// fn 은 Promise 뿐 아니라 Supabase 쿼리 빌더(thenable=PromiseLike)도 받는다.
+export async function timed<T>(label: string, fn: () => PromiseLike<T>): Promise<T> {
   const start = performance.now()
   try {
     return await fn()
