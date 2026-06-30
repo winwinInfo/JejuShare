@@ -53,6 +53,14 @@ export function ChatRoom({
 }: ChatRoomProps) {
   const { messages, send, sending } = useChat(conversationId, currentUserId, initialMessages)
   const [draft, setDraft] = useState('')
+
+  // 내가 보낸 마지막 메시지에만 읽음 상태를 표시(카카오톡 방식)
+  const lastMineId = (() => {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      if (messages[i].sender_id === currentUserId) return messages[i].id
+    }
+    return null
+  })()
   const [error, setError] = useState<string | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
 
@@ -111,7 +119,14 @@ export function ChatRoom({
                   >
                     <p className="whitespace-pre-wrap break-words">{m.body}</p>
                   </div>
-                  <span className="text-[10px] text-muted-foreground">{timeLabel(m.created_at)}</span>
+                  <div className={`flex flex-col text-[10px] text-muted-foreground ${mine ? 'items-end' : 'items-start'}`}>
+                    {mine && m.id === lastMineId && (
+                      <span className={m.read_at ? 'text-muted-foreground' : 'text-foreground/40'}>
+                        {m.read_at ? '' : '1'}
+                      </span>
+                    )}
+                    <span>{timeLabel(m.created_at)}</span>
+                  </div>
                 </div>
               </div>
             </div>

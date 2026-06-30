@@ -5,13 +5,17 @@ import { getConversations } from '@/backend/queries/chat'
 
 export const metadata = { title: '대화' }
 
+const KST = 'Asia/Seoul'
+
 function whenLabel(iso: string) {
   const d = new Date(iso)
   const now = new Date()
-  const sameDay = d.toDateString() === now.toDateString()
+  // 서버(UTC)에서 렌더되므로 타임존을 KST 로 고정해야 대화창과 일치한다.
+  const dayOf = (x: Date) => x.toLocaleDateString('ko-KR', { timeZone: KST })
+  const sameDay = dayOf(d) === dayOf(now)
   return sameDay
-    ? d.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })
-    : d.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' })
+    ? d.toLocaleTimeString('ko-KR', { timeZone: KST, hour: '2-digit', minute: '2-digit' })
+    : d.toLocaleDateString('ko-KR', { timeZone: KST, month: 'long', day: 'numeric' })
 }
 
 export default async function ChatListPage() {

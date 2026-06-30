@@ -41,9 +41,17 @@ export function useChat(
 
   // 실시간 구독
   useEffect(() => {
-    const channel = supabase
-      .channel(`conv:${conversationId}`)
-      .on(
+    let cancelled = false
+    let channel: ReturnType<typeof supabase.channel> | null = null
+
+    // RLS 가 켜진 messages 에서 postgres_changes 를 받으려면 Realtime 소켓이
+    // 사용자 JWT 로 인증돼야 한다. 쿠키 복원 시 발생하는 INITIAL_SESSION 이벤트는
+    // supabase-js 가 자동으로 setAuth 를 호출하지 않으므로 구독 직전에 직접 호출한다.
+    void supabase.realtime.setAuth().then(() => {
+      if (cancelled) return
+      channel = supabase
+        .channel(`conv:${conversationId}`)
+        .on(
         'postgres_changes',
         {
           event: 'INSERT',
@@ -62,10 +70,28 @@ export function useChat(
           }
         },
       )
-      .subscribe()
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'messages',
+          filter: `conversation_id=eq.${conversationId}`,
+        },
+        (payload) => {
+          // 상대가 내 메시지를 읽으면 read_at 갱신 → "읽음" 표시 반영
+          const row = payload.new as ChatMessage
+          setMessages((prev) =>
+            prev.map((m) => (m.id === row.id ? { ...m, ...row } : m)),
+          )
+        },
+      )
+        .subscribe()
+    })
 
     return () => {
-      void supabase.removeChannel(channel)
+      cancelled = true
+      if (channel) void supabase.removeChannel(channel)
     }
   }, [supabase, conversationId, currentUserId, markRead])
 

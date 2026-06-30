@@ -32,22 +32,31 @@ export function ChatNavLink({
   }, [supabase, currentUserId])
 
   useEffect(() => {
-    const channel = supabase
-      .channel('unread-badge')
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'messages' },
-        () => void refresh(),
-      )
-      .on(
-        'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'messages' },
-        () => void refresh(),
-      )
-      .subscribe()
+    let cancelled = false
+    let channel: ReturnType<typeof supabase.channel> | null = null
+
+    // RLS 가 켜진 messages 구독은 Realtime 소켓에 사용자 JWT 가 필요하다.
+    // INITIAL_SESSION(쿠키 복원) 시엔 자동 setAuth 가 안 되므로 직접 호출한다.
+    void supabase.realtime.setAuth().then(() => {
+      if (cancelled) return
+      channel = supabase
+        .channel('unread-badge')
+        .on(
+          'postgres_changes',
+          { event: 'INSERT', schema: 'public', table: 'messages' },
+          () => void refresh(),
+        )
+        .on(
+          'postgres_changes',
+          { event: 'UPDATE', schema: 'public', table: 'messages' },
+          () => void refresh(),
+        )
+        .subscribe()
+    })
 
     return () => {
-      void supabase.removeChannel(channel)
+      cancelled = true
+      if (channel) void supabase.removeChannel(channel)
     }
   }, [supabase, refresh])
 
