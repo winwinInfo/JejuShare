@@ -70,6 +70,19 @@ export async function getConversations(): Promise<ConversationSummary[]> {
   })
 }
 
+/** 내가 받은(상대 발신) 안 읽은 메시지 총개수. 헤더 배지용. RLS 가 내 대화로 한정. */
+export async function getUnreadMessageCount(): Promise<number> {
+  const user = await getServerUser()
+  if (!user) return 0
+  const supabase = await createSupabaseServer()
+  const { count } = await supabase
+    .from('messages')
+    .select('id', { count: 'exact', head: true })
+    .neq('sender_id', user.id)
+    .is('read_at', null)
+  return count ?? 0
+}
+
 export type NewChatTarget =
   | { kind: 'self' }
   | { kind: 'blocked' }

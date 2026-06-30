@@ -1,19 +1,22 @@
 import Link from 'next/link'
 import { createSupabaseServer } from '@/backend/supabase'
 import { getServerUser } from '@/backend/queries/auth'
+import { getUnreadMessageCount } from '@/backend/queries/chat'
+import { ChatNavLink } from '@/frontend/components/ChatNavLink'
 
 export async function SiteHeader() {
   const user = await getServerUser()
 
   let displayName: string | null = null
+  let unread = 0
   if (user) {
     const supabase = await createSupabaseServer()
-    const { data: profile } = await supabase
-      .from('user')
-      .select('nickname')
-      .eq('id', user.id)
-      .single()
+    const [{ data: profile }, unreadCount] = await Promise.all([
+      supabase.from('user').select('nickname').eq('id', user.id).single(),
+      getUnreadMessageCount(),
+    ])
     displayName = profile?.nickname ?? null
+    unread = unreadCount
   }
 
   return (
@@ -37,9 +40,7 @@ export async function SiteHeader() {
                 >
                   글 올리기
                 </Link>
-                <Link href="/chat" className="shrink-0 text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  대화
-                </Link>
+                <ChatNavLink currentUserId={user.id} initialUnread={unread} />
                 <Link href="/my" className="max-w-[34vw] truncate text-sm text-muted-foreground hover:text-foreground transition-colors sm:max-w-none">
                   {displayName ?? '마이페이지'}
                 </Link>
