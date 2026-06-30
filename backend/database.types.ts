@@ -407,6 +407,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      header_state: {
+        Args: Record<string, never>
+        Returns: { nickname: string | null; unread: number }[]
+      }
       find_conversation: {
         Args: { other_id: string }
         Returns: number

@@ -77,6 +77,27 @@ export async function getConversations(): Promise<ConversationSummary[]> {
   })
 }
 
+/**
+ * 헤더에 필요한 정보(닉네임 + 안읽은 메시지 수)를 DB 1왕복으로 조회.
+ * user.id 는 getServerUser(getClaims, 로컬)로 얻고, 닉네임/카운트만 RPC 1회로 합친다.
+ * 비로그인 시 null.
+ */
+export async function getHeaderState(): Promise<{
+  nickname: string | null
+  unread: number
+} | null> {
+  const user = await getServerUser()
+  if (!user) return null
+  const supabase = await createSupabaseServer()
+  const { data } = await timed('getHeaderState.rpc', () =>
+    supabase.rpc('header_state').single(),
+  )
+  return {
+    nickname: data?.nickname ?? null,
+    unread: data?.unread ?? 0,
+  }
+}
+
 /** 내가 받은(상대 발신) 안 읽은 메시지 총개수. 헤더 배지용. RLS 가 내 대화로 한정. */
 export async function getUnreadMessageCount(): Promise<number> {
   const user = await getServerUser()

@@ -1,32 +1,26 @@
 import Link from 'next/link'
-import { createSupabaseServer } from '@/backend/supabase'
 import { getServerUser } from '@/backend/queries/auth'
-import { getUnreadMessageCount } from '@/backend/queries/chat'
+import { getHeaderState } from '@/backend/queries/chat'
 import { timed } from '@/backend/timed'
 import { ChatNavLink } from '@/frontend/components/ChatNavLink'
 
 export async function SiteHeader() {
-  const headerStart = performance.now()
+  // performance.now() 는 렌더 본문에서 직접 부르면 react-hooks/purity 위반.
+  // total 계측은 timed()(컴포넌트 밖 모듈)로 감싸 우회한다.
+  return timed('siteHeader.total', () => renderSiteHeader())
+}
+
+async function renderSiteHeader() {
+  // user.id 는 로컬(JWT) 검증으로 얻고, 닉네임+안읽음은 RPC 1왕복으로 합쳐 가져온다.
   const user = await timed('siteHeader.getServerUser', () => getServerUser())
 
   let displayName: string | null = null
   let unread = 0
   if (user) {
-    const supabase = await createSupabaseServer()
-    const [{ data: profile }, unreadCount] = await timed(
-      'siteHeader.profile+unread',
-      () =>
-        Promise.all([
-          supabase.from('user').select('nickname').eq('id', user.id).single(),
-          getUnreadMessageCount(),
-        ]),
-    )
-    displayName = profile?.nickname ?? null
-    unread = unreadCount
+    const header = await timed('siteHeader.headerState', () => getHeaderState())
+    displayName = header?.nickname ?? null
+    unread = header?.unread ?? 0
   }
-  console.log(
-    `[timing] siteHeader.total: ${(performance.now() - headerStart).toFixed(0)}ms`,
-  )
 
   return (
     <header className="border-b border-border bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-20">
