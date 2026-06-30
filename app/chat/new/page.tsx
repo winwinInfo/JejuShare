@@ -18,7 +18,7 @@ export default async function NewChatPage({
   if (!to) redirect('/chat')
 
   const target = await resolveNewChatTarget(to)
-2977
+
   switch (target.kind) {
     case 'existing':
       redirect(`/chat/${target.conversationId}`)

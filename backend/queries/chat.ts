@@ -131,32 +131,29 @@ export async function resolveNewChatTarget(otherId: string): Promise<NewChatTarg
   if (otherId === user.id) return { kind: 'self' }
   const supabase = await createSupabaseServer()
 
-  const { data: profile } = await supabase
-    .from('user')
-    .select('id, nickname')
-    .eq('id', otherId)
-    .maybeSingle()
-  if (!profile) return { kind: 'not_found' }
-
-  // 차단 관계면 불가
-  const { data: block } = await supabase
-    .from('blocks')
-    .select('id')
-    .or(
-      `and(blocker_id.eq.${user.id},blocked_id.eq.${otherId}),and(blocker_id.eq.${otherId},blocked_id.eq.${user.id})`,
-    )
-    .maybeSingle()
-  if (block) return { kind: 'blocked' }
-
-  // 기존 대화방이 있으면 그쪽으로
+  // profile/block/conv 는 서로 의존하지 않는 독립 read → 병렬 1왕복.
+  // (검증 우선순위 not_found → blocked → existing 는 결과를 받아 분기로 유지)
   const [a, b] = user.id < otherId ? [user.id, otherId] : [otherId, user.id]
-  const { data: conv } = await supabase
-    .from('conversations')
-    .select('id')
-    .eq('user_a', a)
-    .eq('user_b', b)
-    .maybeSingle()
-  if (conv) return { kind: 'existing', conversationId: conv.id }
+  const [{ data: profile }, { data: block }, { data: conv }] = await Promise.all([
+    supabase.from('user').select('id, nickname').eq('id', otherId).maybeSingle(),
+    supabase
+      .from('blocks')
+      .select('id')
+      .or(
+        `and(blocker_id.eq.${user.id},blocked_id.eq.${otherId}),and(blocker_id.eq.${otherId},blocked_id.eq.${user.id})`,
+      )
+      .maybeSingle(),
+    supabase
+      .from('conversations')
+      .select('id')
+      .eq('user_a', a)
+      .eq('user_b', b)
+      .maybeSingle(),
+  ])
+
+  if (!profile) return { kind: 'not_found' }
+  if (block) return { kind: 'blocked' } // 차단 관계면 불가
+  if (conv) return { kind: 'existing', conversationId: conv.id } // 기존 대화방이 있으면 그쪽으로
 
   return { kind: 'ok', otherId, otherNickname: profile.nickname ?? '익명' }
 }
