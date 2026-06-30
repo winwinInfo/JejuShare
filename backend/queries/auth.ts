@@ -1,5 +1,6 @@
 import { cache } from 'react'
 import { createSupabaseServer } from '@/backend/supabase'
+import { timed } from '@/backend/timed'
 import { NextRequest, NextResponse } from 'next/server'
 
 // 페이지 렌더가 의존하는 최소 신원 정보. (id, email만 — 호출부가 쓰는 건 이 둘뿐)
@@ -15,7 +16,9 @@ export type ServerUser = {
 // request 스코프 안에서는 cache로 1회만 평가.
 export const getServerUser = cache(async (): Promise<ServerUser | null> => {
   const supabase = await createSupabaseServer()
-  const { data, error } = await supabase.auth.getClaims()
+  const { data, error } = await timed('getServerUser.getClaims', () =>
+    supabase.auth.getClaims(),
+  )
 
   const claims = data?.claims
   if (error || !claims?.sub) return null

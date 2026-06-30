@@ -1,5 +1,6 @@
 import { createSupabaseServer } from '@/backend/supabase'
 import { getServerUser } from '@/backend/queries/auth'
+import { timed } from '@/backend/timed'
 import type { Database } from '@/backend/database.types'
 
 export type ChatMessageRow = Database['public']['Tables']['messages']['Row']
@@ -29,24 +30,30 @@ export async function getConversations(): Promise<ConversationSummary[]> {
   if (!user) return []
   const supabase = await createSupabaseServer()
 
-  const { data: convs } = await supabase
-    .from('conversations')
-    .select('id, user_a, user_b, last_message_at')
-    .order('last_message_at', { ascending: false })
+  const { data: convs } = await timed('getConversations.convs', () =>
+    supabase
+      .from('conversations')
+      .select('id, user_a, user_b, last_message_at')
+      .order('last_message_at', { ascending: false }),
+  )
 
   if (!convs || convs.length === 0) return []
 
   const otherIds = [...new Set(convs.map((c) => otherId(c, user.id)))]
   const convIds = convs.map((c) => c.id)
 
-  const [{ data: profiles }, { data: msgs }] = await Promise.all([
-    supabase.from('user').select('id, nickname').in('id', otherIds),
-    supabase
-      .from('messages')
-      .select('id, conversation_id, sender_id, body, read_at, created_at')
-      .in('conversation_id', convIds)
-      .order('created_at', { ascending: false }),
-  ])
+  const [{ data: profiles }, { data: msgs }] = await timed(
+    'getConversations.profiles+msgs',
+    () =>
+      Promise.all([
+        supabase.from('user').select('id, nickname').in('id', otherIds),
+        supabase
+          .from('messages')
+          .select('id, conversation_id, sender_id, body, read_at, created_at')
+          .in('conversation_id', convIds)
+          .order('created_at', { ascending: false }),
+      ]),
+  )
 
   const nickById = new Map((profiles ?? []).map((p) => [p.id, p.nickname ?? '익명']))
   const lastByConv = new Map<number, string>()
@@ -75,11 +82,13 @@ export async function getUnreadMessageCount(): Promise<number> {
   const user = await getServerUser()
   if (!user) return 0
   const supabase = await createSupabaseServer()
-  const { count } = await supabase
-    .from('messages')
-    .select('id', { count: 'exact', head: true })
-    .neq('sender_id', user.id)
-    .is('read_at', null)
+  const { count } = await timed('getUnreadMessageCount.query', () =>
+    supabase
+      .from('messages')
+      .select('id', { count: 'exact', head: true })
+      .neq('sender_id', user.id)
+      .is('read_at', null),
+  )
   return count ?? 0
 }
 

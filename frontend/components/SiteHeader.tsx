@@ -2,22 +2,31 @@ import Link from 'next/link'
 import { createSupabaseServer } from '@/backend/supabase'
 import { getServerUser } from '@/backend/queries/auth'
 import { getUnreadMessageCount } from '@/backend/queries/chat'
+import { timed } from '@/backend/timed'
 import { ChatNavLink } from '@/frontend/components/ChatNavLink'
 
 export async function SiteHeader() {
-  const user = await getServerUser()
+  const headerStart = performance.now()
+  const user = await timed('siteHeader.getServerUser', () => getServerUser())
 
   let displayName: string | null = null
   let unread = 0
   if (user) {
     const supabase = await createSupabaseServer()
-    const [{ data: profile }, unreadCount] = await Promise.all([
-      supabase.from('user').select('nickname').eq('id', user.id).single(),
-      getUnreadMessageCount(),
-    ])
+    const [{ data: profile }, unreadCount] = await timed(
+      'siteHeader.profile+unread',
+      () =>
+        Promise.all([
+          supabase.from('user').select('nickname').eq('id', user.id).single(),
+          getUnreadMessageCount(),
+        ]),
+    )
     displayName = profile?.nickname ?? null
     unread = unreadCount
   }
+  console.log(
+    `[timing] siteHeader.total: ${(performance.now() - headerStart).toFixed(0)}ms`,
+  )
 
   return (
     <header className="border-b border-border bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-20">

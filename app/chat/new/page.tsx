@@ -1,3 +1,4 @@
+
 import { redirect } from 'next/navigation'
 import { getServerUser } from '@/backend/queries/auth'
 import { resolveNewChatTarget } from '@/backend/queries/chat'

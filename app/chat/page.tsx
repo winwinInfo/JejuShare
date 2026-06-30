@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getServerUser } from '@/backend/queries/auth'
 import { getConversations } from '@/backend/queries/chat'
+import { timed } from '@/backend/timed'
 
 export const metadata = { title: '대화' }
 
@@ -19,10 +20,16 @@ function whenLabel(iso: string) {
 }
 
 export default async function ChatListPage() {
-  const user = await getServerUser()
+  const pageStart = performance.now()
+  const user = await timed('chat.page.getServerUser', () => getServerUser())
   if (!user) redirect('/login')
 
-  const conversations = await getConversations()
+  const conversations = await timed('chat.page.getConversations', () =>
+    getConversations(),
+  )
+  console.log(
+    `[timing] chat.page.total: ${(performance.now() - pageStart).toFixed(0)}ms`,
+  )
 
   return (
     <main className="mx-auto max-w-2xl px-5 py-10">
